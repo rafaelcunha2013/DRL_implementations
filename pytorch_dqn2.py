@@ -1,3 +1,4 @@
+#!/bin/env python
 import gymnasium as gym
 import math
 import random
@@ -6,6 +7,8 @@ import matplotlib.pyplot as plt
 import numpy as np
 from datetime import datetime
 import os
+import platform
+import sys
 
 from collections import namedtuple, deque
 from itertools import count
@@ -248,7 +251,8 @@ class Agent:
 
 
 if __name__ == '__main__':
-    for i in range(7):
+    num_trial = int(sys.argv[3])
+    for i in range(num_trial):
         env_name = 'CartPole-v1'
         env = gym.make(env_name)
 
@@ -271,16 +275,43 @@ if __name__ == '__main__':
 
         hid_dim = 128
         capacity = 10_000
-        num_episodes = 1000
+        num_episodes = int(sys.argv[2]) #50
+        alg = [sys.argv[1]] #['dqn']
 
-        log_dir = 'logs/dqn_run' + str(i)
-        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=['dqn'], log_dir=log_dir)
+        unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
+        name = f'logs/{alg[0]}_run_{unique_id}'
+        system_name = platform.system()
+        if platform.system() == 'Linux':
+            log_dir = f'/data/p285087/drl_alg/{name}'
+        else:
+            log_dir = name
+
+
+        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir)
         my_dqn.train(num_episodes)
 
-        print('Complete')
-        my_dqn.plot_durations(show_result=True, save=True)
+        # print('Complete')
+        # my_dqn.plot_durations(show_result=True, save=True)
         # plt.ioff()
         # plt.show()
-    
 
+# python3 pytorch_dqn2.py dqn 50 4   
 
+# if platform.system() == 'Linux':
+#     root = '/data/p285087/four_room/'
+#     model_name = sys.argv[1]
+#     max_step_episode = int(sys.argv[2])
+#     exploration_fraction = float(sys.argv[3])
+#     train_freq = int(sys.argv[4])
+#     random_initial_position = bool(sys.argv[5])
+#     target_update_interval = int(sys.argv[6])
+# else:
+#     root = os.getcwd()
+#     model_name = "DDQN"
+#     max_step_episode = 500
+#     exploration_fraction = 0.1
+#     train_freq = 4
+#     random_initial_position = False
+#     target_update_interval = 10_000
+
+# unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
