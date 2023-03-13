@@ -185,6 +185,12 @@ class Agent:
                 next_action_values = self.policy_net(non_final_next_states).argmax(1).view(-1, 1)
                 next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
 
+        if 'ddqn2' in self.alg:
+            # next_action_values = torch.zeros(self.batch_size, device=self.device)
+            with torch.no_grad():
+                next_action_values = self.target_net(non_final_next_states).argmax(1).view(-1, 1)
+                next_state_values[non_final_mask] = self.policy_net(non_final_next_states).gather(1, next_action_values).view(-1)
+
         expected_state_action_values = (next_state_values * self.gamma) + reward_batch
         # --- Core of the DQN algorithm -------
 
