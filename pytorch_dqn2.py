@@ -3,8 +3,9 @@ import math
 import random
 import matplotlib
 import matplotlib.pyplot as plt
-import os
+import numpy as np
 from datetime import datetime
+import os
 
 from collections import namedtuple, deque
 from itertools import count
@@ -59,8 +60,8 @@ class Network(nn.Module):
 ###########################
 class Agent:
 
-    def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, lr, hid_dim=128, capacity=10_000, alg=['ddqn'],
-                log_dir='logs'):
+    def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
+                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/'):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -90,8 +91,8 @@ class Agent:
         self.episode_durations = []
 
         # Variables to collect statistics
-        self.writer = SummaryWriter(log_dir=log_dir)
-        self.loss = None
+        self.writer = SummaryWriter(log_dir)
+        self.loss = torch.zeros(1)
 
 
     def select_action(self, state):
@@ -108,11 +109,12 @@ class Agent:
             return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
 
     
-    def plot_durations(self, show_result=False):
+    def plot_durations(self, show_result=False, save=False):
         plt.figure(1)
         # I believe that durations_t here acts is the reward, since the example will be with the cartpole environment
         durations_t = torch.tensor(self.episode_durations, dtype=torch.float)
         if show_result:
+            plt.clf()
             plt.title('Result')
         else:
             # plt.clf() clears the current figure 
@@ -140,6 +142,13 @@ class Agent:
                 display.clear_output(wait=True)
             else:
                 display.display(plt.gcf())
+
+        if save:
+            unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
+            plt.savefig(os.path.join(os.getcwd(), 'tutorial_pytorch', 'figures', unique_id + '__reward.png'))
+            # self.writer.add_image('reward_plot', plt.figure(1), i_episode)
+            
+
 
     
     def optimize_model(self):
@@ -180,12 +189,11 @@ class Agent:
 
         # Compute Huber loss
         criterion = nn.SmoothL1Loss()
-        loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
-        # self.writer.add_scalar('Loss', loss, )
+        self.loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
 
         # Optimize the model
         self.optimizer.zero_grad()
-        loss.backward()
+        self.loss.backward()
         # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
@@ -198,6 +206,7 @@ class Agent:
         for i_episode in range(num_episodes):
             state, info = self.env.reset()
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            loss_mean = 0
             for t in count():
                 action = self.select_action(state)
                 observation, reward, terminated, truncated, _ = self.env.step(action.item())
@@ -214,6 +223,8 @@ class Agent:
 
                 # Perform one step of the optimization (on the policy network)
                 self.optimize_model()
+                loss_mean += (self.loss.item() - loss_mean) / (t + 1)
+
 
                 # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
                 target_net_state_dict = self.target_net.state_dict()
@@ -224,9 +235,11 @@ class Agent:
 
                 if done:
                     self.episode_durations.append(t + 1)
-                    # if i_episode % 50 == 0:
-                    #     self.plot_durations()
+                    # self.plot_durations()
+                    self.writer.add_scalar('loss', loss_mean, i_episode) 
+                    self.writer.add_scalar('reward', t+1, i_episode)
                     break
+        self.writer.close()
 
         # print('Complete')
         # self.plot_durations(show_result=True)
@@ -235,7 +248,7 @@ class Agent:
 
 
 if __name__ == '__main__':
-    for _ in range(20):
+    for i in range(7):
         env_name = 'CartPole-v1'
         env = gym.make(env_name)
 
@@ -245,7 +258,7 @@ if __name__ == '__main__':
             from IPython import display
 
         # This turns on iteractive mode. Allows matplotlib to add data to the plot without blocks the execution, as happen with plt.show()
-        plt.ion()
+        # plt.ion()
 
         # Hyperparameters
         BATCH_SIZE = 128
@@ -258,16 +271,15 @@ if __name__ == '__main__':
 
         hid_dim = 128
         capacity = 10_000
-        num_episodes = 500
+        num_episodes = 1000
 
-        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=['ddqn'])
+        log_dir = 'logs/dqn_run' + str(i)
+        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=['dqn'], log_dir=log_dir)
         my_dqn.train(num_episodes)
 
         print('Complete')
-        my_dqn.plot_durations(show_result=True)
-        plt.ioff()
-        unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S")
-        plt.savefig(os.path.join(os.getcwd(), 'tutorial_pytorch', unique_id + '_fig.png'))
+        my_dqn.plot_durations(show_result=True, save=True)
+        # plt.ioff()
         # plt.show()
     
 
