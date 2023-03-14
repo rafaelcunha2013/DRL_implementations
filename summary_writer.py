@@ -40,7 +40,9 @@ def plot_tensorboard(folder_path, tag, save_dir, split_term, file_name='_'):
     df_alg = df.run.apply(lambda run: run.split(split_term)[0])
 
     plt.figure(1, figsize=(16, 6))
+    plt.clf()
     sns.lineplot(data=df, x="step", y=tag, hue=df_alg).set_title(f"DQN {tag.capitalize()}")
+    plt.grid()
     # save_dir = './tutorial_pytorch/Dqn_comp_same_plot'
     plt.savefig(save_dir, dpi=200)
 
