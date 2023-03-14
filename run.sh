@@ -1,6 +1,6 @@
 #!/bin/bash
 #SBATCH --job-name=para
-#SBATCH --time=5:00:00
+#SBATCH --time=10:00:00
 #SBATCH --mem=1G
 
 module load Python
