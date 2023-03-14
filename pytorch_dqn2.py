@@ -185,6 +185,7 @@ class Agent:
                 next_action_values = self.policy_net(non_final_next_states).argmax(1).view(-1, 1)
                 next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
 
+        # Very bad performance. It is probably wrong
         if 'ddqn2' in self.alg:
             # next_action_values = torch.zeros(self.batch_size, device=self.device)
             with torch.no_grad():
@@ -267,8 +268,11 @@ class Agent:
 if __name__ == '__main__':
     num_trial = int(sys.argv[3])
     for i in range(num_trial):
-        env_name = 'CartPole-v1'
+        # env_name = 'CartPole-v1'
+        # env_name = 'LunarLander-v2'
+        env_name = sys.argv[4]
         env = gym.make(env_name)
+        # print('Created')
 
         # Set up matplotlib (Basically, check if it is running in a jupyter notebook)
         is_ipython = 'inline' in matplotlib.get_backend()
@@ -293,7 +297,7 @@ if __name__ == '__main__':
         alg = [sys.argv[1]] #['dqn']
 
         unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-        name = f'logs/{alg[0]}_run_{unique_id}'
+        name = f'logs/{env_name}_{alg[0]}_run_{unique_id}'
         system_name = platform.system()
         if platform.system() == 'Linux':
             log_dir = f'/data/p285087/drl_alg/{name}'
