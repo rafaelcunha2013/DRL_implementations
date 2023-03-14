@@ -1,2 +1,3 @@
 *.png
 stable_baselines_ddqn.py
+events.out.*
