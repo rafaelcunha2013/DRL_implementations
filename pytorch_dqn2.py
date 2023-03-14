@@ -216,9 +216,15 @@ class Agent:
             state, info = self.env.reset()
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             loss_mean = 0
+            cum_reward = 0
+            cum_discounted_reward = 0
+            cum_gamma = self.gamma
             for t in count():
                 action = self.select_action(state)
                 observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                cum_reward += reward
+                cum_discounted_reward += cum_gamma * reward
+                cum_gamma *= self.gamma
                 reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
 
@@ -246,7 +252,9 @@ class Agent:
                     self.episode_durations.append(t + 1)
                     # self.plot_durations()
                     self.writer.add_scalar('loss', loss_mean, i_episode) 
-                    self.writer.add_scalar('reward', t+1, i_episode)
+                    # self.writer.add_scalar('reward', t+1, i_episode)
+                    self.writer.add_scalar('reward', cum_reward, i_episode)
+                    self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
                     break
         self.writer.close()
 
