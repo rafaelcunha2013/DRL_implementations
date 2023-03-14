@@ -280,7 +280,8 @@ if __name__ == '__main__':
                        render_mode=render_mode,
                        max_episode_steps=max_step_episode,
                        random_initial_position=random_initial_position,
-                       max_num_agents=2)
+                       max_num_agents=2,
+                       video=False)
         env = gym.make(env_name)
         # print('Created')
 
