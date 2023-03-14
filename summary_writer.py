@@ -45,13 +45,27 @@ def plot_tensorboard(folder_path, tag, save_dir, split_term, file_name='_'):
     plt.savefig(save_dir, dpi=200)
 
 if __name__ == '__main__':
-    folder_path = './tutorial_pytorch/logs2/'
-    file_name = '_'
-    tag = 'reward'
-    save_dir = './tutorial_pytorch/Dqn_comp_same_plot3'
-    split_term = '_'
+    # folder_path = './tutorial_pytorch/logs2/'
+    # save_dir = './tutorial_pytorch/Dqn_comp_same_plot3'
+    # file_name = '_'
+    # tag = 'reward'  
+    # split_term = '_'
 
+    folder_path = '/data/p285087/drl_alg/logs/'
+    file_name = 'LunarLander-v2'
+    split_term = '_run'
+
+    tag = 'reward'  
+    save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}'   
     plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
-    print('Done')
+
+    tag = 'disc_reward'  
+    save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}' 
+    plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
+
+    tag = 'loss'  
+    save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}' 
+    plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
+    # print('Done')
 
 
