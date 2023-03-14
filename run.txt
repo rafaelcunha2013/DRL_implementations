@@ -1,3 +1,5 @@
 sbatch run.sh dqn 1000 20
 sbatch run.sh ddqn 1000 20
 sbatch run.sh ddqn2 1000 20
+sbatch run.sh dqn 1000 20 LunarLander-v2
+sbatch run.sh ddqn 1000 20 LunarLander-v2
