@@ -280,12 +280,22 @@ if __name__ == '__main__':
 
 
     """
-    num_trial = int(sys.argv[3])
-    for i in range(num_trial):
-        # env_name = 'CartPole-v1'
-        # env_name = 'LunarLander-v2'
+    if platform.system() == 'Linux':
+        alg = [sys.argv[1]] #['dqn']
+        num_episodes = int(sys.argv[2]) #50
+        num_trial = int(sys.argv[3])
         env_name = sys.argv[4]
         num_agents = int(sys.argv[5]) # Choose 1 or 2
+    else:
+        alg = ['dqn']
+        num_episodes = 50
+        num_trial = 3
+        env_name = 'four-room-multiagent-v0'
+        num_agents = 1  
+
+    for i in range(num_trial):
+        # env_name = 'CartPole-v1'
+        # env_name = 'LunarLander-v2'      
         render_mode = "rgb_array"
         max_step_episode = 500
         random_initial_position = False
@@ -295,7 +305,7 @@ if __name__ == '__main__':
                        random_initial_position=random_initial_position,
                        max_num_agents=num_agents,
                        video=False)
-        env = gym.make(env_name)
+        # env = gym.make(env_name)
         # print('Created')
 
         # Set up matplotlib (Basically, check if it is running in a jupyter notebook)
@@ -317,9 +327,7 @@ if __name__ == '__main__':
 
         hid_dim = 128
         capacity = 10_000
-        num_episodes = int(sys.argv[2]) #50
-        alg = [sys.argv[1]] #['dqn']
-
+        
         unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
         name = f'logs/{env_name}_nag{num_agents}_{alg[0]}_nt{num_trial:03}_run_{unique_id}'
         system_name = platform.system()
