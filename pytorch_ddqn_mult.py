@@ -106,7 +106,8 @@ class Agent:
 
         # Variables to collect statistics
         self.writer = SummaryWriter(log_dir)
-        self.loss = torch.zeros(1)
+        self.loss1 = torch.zeros(1)
+        self.loss2 = torch.zeros(1)
 
 
     def select_action(self, state):
@@ -168,7 +169,11 @@ class Agent:
             plt.savefig(os.path.join(os.getcwd(), 'tutorial_pytorch', 'figures', unique_id + '__reward.png'))
             # self.writer.add_image('reward_plot', plt.figure(1), i_episode)
             
+    @staticmethod
+    def extend_state(state_batch, action_batch):
+        state_action1_batch, action1_batch, action2_batch = None, None, None
 
+        return state_action1_batch, action1_batch, action2_batch
 
     
     def optimize_model(self):
@@ -186,15 +191,24 @@ class Agent:
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
+        # Individualize the actions and augment the state
+        state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
+        # state_batch
+        # state_action1_batch
+        # action1_batch
+        # action2_batch
+
 
         # --- Core of the DQN algorithm -------
-        state_action_values = self.policy_net(state_batch).gather(1, action_batch)
+        state_action1_values = self.policy_net1(state_batch).gather(1, action1_batch)
+        state_action1_action2_values = self.policy_net2(state_action1_batch).gather(1, action2_batch)
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
 
         if 'dqn' in self.alg:
             with torch.no_grad():
-                next_state_values[non_final_mask] = self.target_net(non_final_next_states).max(1)[0]
+                next_state_values[non_final_mask] = self.target_net1(non_final_next_states).max(1)[0]
+                expected_state_action1_values = self.target_net2(state_action1_batch).max(1)[0]
 
         if 'ddqn' in self.alg:
             # next_action_values = torch.zeros(self.batch_size, device=self.device)
@@ -209,21 +223,26 @@ class Agent:
                 next_action_values = self.target_net(non_final_next_states).argmax(1).view(-1, 1)
                 next_state_values[non_final_mask] = self.policy_net(non_final_next_states).gather(1, next_action_values).view(-1)
 
-        expected_state_action_values = (next_state_values * self.gamma) + reward_batch
+        expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
         # --- Core of the DQN algorithm -------
 
 
 
         # Compute Huber loss
         criterion = nn.SmoothL1Loss()
-        self.loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        self.loss1 = criterion(state_action1_values, expected_state_action1_values.unsqueeze(1))
+        self.loss2 = criterion(state_action1_action2_values, expected_state_action1_action2_values.unsqueeze(1))  
 
         # Optimize the model
-        self.optimizer.zero_grad()
-        self.loss.backward()
+        self.optimizer1.zero_grad()
+        self.optimizer2.zero_grad()
+        self.loss1.backward()
+        self.loss2.backward()
         # In-place gradient clipping
-        torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
-        self.optimizer.step()
+        torch.nn.utils.clip_grad_value_(self.policy_net1.parameters(), 100)
+        torch.nn.utils.clip_grad_value_(self.policy_net2.parameters(), 100)
+        self.optimizer1.step()
+        self.optimizer2.step()
         
 
     def train(self, num_episodes):
@@ -233,7 +252,8 @@ class Agent:
         for i_episode in range(num_episodes):
             state, info = self.env.reset()
             state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
-            loss_mean = 0
+            loss_mean1 = 0
+            loss_mean2 = 0
             cum_reward = 0
             cum_discounted_reward = 0
             cum_gamma = self.gamma
@@ -256,20 +276,29 @@ class Agent:
 
                 # Perform one step of the optimization (on the policy network)
                 self.optimize_model()
-                loss_mean += (self.loss.item() - loss_mean) / (t + 1)
+                loss_mean1 += (self.loss1.item() - loss_mean1) / (t + 1)
+                loss_mean2 += (self.loss2.item() - loss_mean2) / (t + 1)
 
 
                 # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
-                target_net_state_dict = self.target_net.state_dict()
-                policy_net_state_dict = self.policy_net.state_dict()
-                for key in policy_net_state_dict:
-                    target_net_state_dict[key] = policy_net_state_dict[key] * self.tau + target_net_state_dict[key] * (1 - self.tau)
-                self.target_net.load_state_dict(target_net_state_dict)
+                target_net1_state_dict = self.target_net1.state_dict()
+                policy_net1_state_dict = self.policy_net1.state_dict()
+                for key in policy_net1_state_dict:
+                    target_net1_state_dict[key] = policy_net1_state_dict[key] * self.tau + target_net1_state_dict[key] * (1 - self.tau)
+                self.target_net1.load_state_dict(target_net1_state_dict)
+
+                target_net2_state_dict = self.target_net2.state_dict()
+                policy_net2_state_dict = self.policy_net2.state_dict()
+                for key in policy_net2_state_dict:
+                    target_net2_state_dict[key] = policy_net2_state_dict[key] * self.tau + target_net2_state_dict[key] * (1 - self.tau)
+                self.target_net2.load_state_dict(target_net2_state_dict)
+                ############################### Maybe write as method to avoid repetion
 
                 if done:
                     self.episode_durations.append(t + 1)
                     # self.plot_durations()
-                    self.writer.add_scalar('loss', loss_mean, i_episode) 
+                    self.writer.add_scalar('loss1', loss_mean1, i_episode) 
+                    self.writer.add_scalar('loss2', loss_mean2, i_episode) 
                     self.writer.add_scalar('episode_len', t+1, i_episode)
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
@@ -292,15 +321,24 @@ if __name__ == '__main__':
     3: Number of runs in the for loop (num_trial)
     4: Name of the environment (env_name)
     5: Number of agents (num_agents)
-
-
     """
-    num_trial = int(sys.argv[3])
+
+    if platform.system() == 'Linux':
+        alg = [sys.argv[1]] #['dqn']
+        num_episodes = int(sys.argv[2]) #50
+        num_trial = int(sys.argv[3])
+        env_name = sys.argv[4]
+        num_agents = int(sys.argv[5]) # Choose 1 or 2
+    else:
+        alg = ['dqn']
+        num_episodes = 50
+        num_trial = 3
+        env_name = 'four-room-multiagent-v0'
+        num_agents = 2  
+
     for i in range(num_trial):
         # env_name = 'CartPole-v1'
         # env_name = 'LunarLander-v2'
-        env_name = sys.argv[4]
-        num_agents = int(sys.argv[5]) # Choose 1 or 2
         render_mode = "rgb_array"
         max_step_episode = 500
         random_initial_position = False
@@ -322,7 +360,7 @@ if __name__ == '__main__':
         # plt.ion()
 
         # Hyperparameters
-        BATCH_SIZE = 128
+        BATCH_SIZE = 4 # 128
         GAMMA = 0.99
         EPS_START = 0.9
         EPS_END = 0.05
@@ -332,8 +370,6 @@ if __name__ == '__main__':
 
         hid_dim = 128
         capacity = 10_000
-        num_episodes = int(sys.argv[2]) #50
-        alg = [sys.argv[1]] #['dqn']
 
         unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
         name = f'logs/{env_name}_nag{num_agents}_{alg[0]}_nt{num_trial:03}_run_{unique_id}'
