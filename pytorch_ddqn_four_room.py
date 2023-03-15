@@ -255,7 +255,7 @@ class Agent:
                     self.episode_durations.append(t + 1)
                     # self.plot_durations()
                     self.writer.add_scalar('loss', loss_mean, i_episode) 
-                    # self.writer.add_scalar('reward', t+1, i_episode)
+                    self.writer.add_scalar('episode_len', t+1, i_episode)
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
                     break
