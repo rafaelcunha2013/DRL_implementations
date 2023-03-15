@@ -287,7 +287,7 @@ if __name__ == '__main__':
         env_name = sys.argv[4]
         num_agents = int(sys.argv[5]) # Choose 1 or 2
     else:
-        alg = ['dqn']
+        alg = ['ddqn']
         num_episodes = 50
         num_trial = 3
         env_name = 'four-room-multiagent-v0'
