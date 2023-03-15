@@ -6,3 +6,5 @@ sbatch run.sh ddqn 1000 20 LunarLander-v2
 sbatch run_four_room.sh ddqn 1_000_000 20 four-room-multiagent-v0
 sbatch run_four_room.sh dqn 1_000_000 20 four-room-multiagent-v0
 sbatch plots.sh
+sbatch run_four_room.sh ddqn 4_000_000 10 four-room-multiagent-v0
+sbatch run_four_room.sh ddqn 10_000 5 four-room-multiagent-v0 1 
