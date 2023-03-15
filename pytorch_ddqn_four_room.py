@@ -268,11 +268,24 @@ class Agent:
 
 
 if __name__ == '__main__':
+    """
+    Intructions to run the code via command line
+    sbatch run_four_room.sh ddqn 10_000 5 four-room-multiagent-v0 1 
+    Arguments:
+    1: Algorithm used. Choose among 'dqn' or 'ddqn'. (alg)
+    2: Number of episodes for each run (num_episodes)
+    3: Number of runs in the for loop (num_trial)
+    4: Name of the environment (env_name)
+    5: Number of agents (num_agents)
+
+
+    """
     num_trial = int(sys.argv[3])
     for i in range(num_trial):
         # env_name = 'CartPole-v1'
         # env_name = 'LunarLander-v2'
         env_name = sys.argv[4]
+        num_agents = int(sys.argv[5]) # Choose 1 or 2
         render_mode = "rgb_array"
         max_step_episode = 500
         random_initial_position = False
@@ -280,7 +293,7 @@ if __name__ == '__main__':
                        render_mode=render_mode,
                        max_episode_steps=max_step_episode,
                        random_initial_position=random_initial_position,
-                       max_num_agents=2,
+                       max_num_agents=num_agents,
                        video=False)
         env = gym.make(env_name)
         # print('Created')
@@ -308,7 +321,7 @@ if __name__ == '__main__':
         alg = [sys.argv[1]] #['dqn']
 
         unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-        name = f'logs/{env_name}_{alg[0]}_{num_trial:03}_run_{unique_id}'
+        name = f'logs/{env_name}_nag{num_agents}_{alg[0]}_nt{num_trial:03}_run_{unique_id}'
         system_name = platform.system()
         if platform.system() == 'Linux':
             log_dir = f'/data/p285087/drl_alg/{name}'
