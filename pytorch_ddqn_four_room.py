@@ -308,7 +308,7 @@ if __name__ == '__main__':
         alg = [sys.argv[1]] #['dqn']
 
         unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-        name = f'logs/{env_name}_{alg[0]}_run_{unique_id}'
+        name = f'logs/{env_name}_{alg[0]}_{num_trial:03}_run_{unique_id}'
         system_name = platform.system()
         if platform.system() == 'Linux':
             log_dir = f'/data/p285087/drl_alg/{name}'
