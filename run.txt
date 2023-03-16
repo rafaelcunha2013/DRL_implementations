@@ -12,3 +12,9 @@ sbatch run_four_room.sh ddqn 10_000 1 four-room-multiagent-v0 1
 sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
 sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
 sbatch run_one_at_time.sh dqn 20_000 1 four-room-multiagent-v0 2
+sbatch run_four_room.sh dqn 20_000 1 four-room-multiagent-v0 2
+sbatch run_four_room.sh dqn 20_000 1 four-room-multiagent-v0 1
+sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
+sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 1
+sbatch main.sh dqn 4_000 1 four-room-multiagent-v0 2 logs4 bertsekas
+sbatch main.sh dqn 4_000 1 four-room-multiagent-v0 2 logs4 regular
