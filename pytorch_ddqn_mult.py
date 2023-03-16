@@ -169,9 +169,16 @@ class Agent:
             plt.savefig(os.path.join(os.getcwd(), 'tutorial_pytorch', 'figures', unique_id + '__reward.png'))
             # self.writer.add_image('reward_plot', plt.figure(1), i_episode)
             
-    @staticmethod
-    def extend_state(state_batch, action_batch):
-        state_action1_batch, action1_batch, action2_batch = None, None, None
+
+    def extend_state(self, state_batch, action_batch):
+        # Extract first and second values from dictionary
+        action1_batch = torch.tensor([self.env.action_dict[str(key.item())][0] for key in action_batch.flatten()])       
+        action2_batch = torch.tensor([self.env.action_dict[str(key.item())][1] for key in action_batch.flatten()])
+
+        action1_batch = action1_batch.reshape(action_batch.shape)
+        action2_batch = action2_batch.reshape(action_batch.shape)
+
+        state_action1_batch = torch.cat((state_batch, action1_batch), dim=1)
 
         return state_action1_batch, action1_batch, action2_batch
 
