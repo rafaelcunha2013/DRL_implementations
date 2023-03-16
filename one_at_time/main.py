@@ -27,12 +27,16 @@ if system_name == 'Linux':
     num_trial = int(sys.argv[3])
     env_name = sys.argv[4]
     num_agents = int(sys.argv[5]) # Choose 1 or 2
+    folder = sys.argv[6]
+    agent_type = sys.argv[7]
 else:
     alg = ['dqn']
-    num_episodes = 10_000
+    num_episodes = 4_000
     num_trial = 1
     env_name = 'four-room-multiagent-v0'
     num_agents = 2  
+    folder = 'logs4'
+    agent_type = 'bertsekas'
 
 # Hyperparameters
 BATCH_SIZE = 128
@@ -64,8 +68,11 @@ for i in range(num_trial):
     # print('Created')
     #folder/
     unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-    name = f'logs/{env_name}_nag{num_agents}_{alg[0]}_nt{num_trial:03}_run_{unique_id}'
+    name = f'{folder}/{env_name}_nag{num_agents}_{alg[0]}_{agent_type}_run_{unique_id}'
     log_dir = f'/data/p285087/drl_alg/{name}' if system_name == 'Linux' else name
 
-    my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir)
+    if agent_type == 'regular':
+        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir)
+    else:
+        my_dqn = AgentOneAtTime(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir)
     my_dqn.train(num_episodes)
