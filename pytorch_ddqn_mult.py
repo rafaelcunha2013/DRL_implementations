@@ -338,8 +338,8 @@ if __name__ == '__main__':
         num_agents = int(sys.argv[5]) # Choose 1 or 2
     else:
         alg = ['dqn']
-        num_episodes = 50
-        num_trial = 3
+        num_episodes = 10
+        num_trial = 1
         env_name = 'four-room-multiagent-v0'
         num_agents = 2  
 
@@ -367,7 +367,7 @@ if __name__ == '__main__':
         # plt.ion()
 
         # Hyperparameters
-        BATCH_SIZE = 4 # 128
+        BATCH_SIZE = 128
         GAMMA = 0.99
         EPS_START = 0.9
         EPS_END = 0.05

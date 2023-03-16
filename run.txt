@@ -8,3 +8,6 @@ sbatch run_four_room.sh dqn 1_000_000 20 four-room-multiagent-v0
 sbatch plots.sh
 sbatch run_four_room.sh ddqn 4_000_000 10 four-room-multiagent-v0
 sbatch run_four_room.sh ddqn 10_000 5 four-room-multiagent-v0 1 
+sbatch run_four_room.sh ddqn 10_000 1 four-room-multiagent-v0 1
+sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
+sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
