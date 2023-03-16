@@ -54,7 +54,8 @@ if __name__ == '__main__':
     # split_term = '_'
 
     folder_path = '/data/p285087/drl_alg/logs/'
-    file_name = 'LunarLander-v2'
+    #file_name = 'LunarLander-v2'
+    file_name = 'four-room-multiagent-v0'
     split_term = '_run'
 
     tag = 'reward'  
@@ -65,9 +66,9 @@ if __name__ == '__main__':
     save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}' 
     plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
 
-    tag = 'loss'  
-    save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}' 
-    plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
+    # tag = 'loss'  
+    # save_dir = f'/data/p285087/drl_alg/{file_name}_{tag}' 
+    # plot_tensorboard(folder_path, tag, save_dir, split_term, file_name)
     # print('Done')
 
 
