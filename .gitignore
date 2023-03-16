@@ -4,3 +4,5 @@ events.out.*
 logs2.*
 .DS_Store
 *.csv
+copy_folder.sh
+logs3.zip
