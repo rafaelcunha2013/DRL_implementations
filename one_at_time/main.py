@@ -20,7 +20,8 @@ Arguments:
 5: Number of agents (num_agents)
 """
 
-if platform.system() == 'Linux':
+system_name = platform.system()
+if system_name == 'Linux':
     alg = [sys.argv[1]] #['dqn']
     num_episodes = int(sys.argv[2]) #50
     num_trial = int(sys.argv[3])
@@ -33,12 +34,26 @@ else:
     env_name = 'four-room-multiagent-v0'
     num_agents = 2  
 
+# Hyperparameters
+BATCH_SIZE = 128
+GAMMA = 0.99
+EPS_START = 0.9
+EPS_END = 0.05
+EPS_DECAY = 1000
+TAU = 0.005  # Tau is the update rate of the target network
+LR = 1e-4
+
+hid_dim = 128
+capacity = 10_000
+
+# env_name = 'CartPole-v1'
+# env_name = 'LunarLander-v2'
+render_mode = "rgb_array"
+max_step_episode = 500
+random_initial_position = False
+
 for i in range(num_trial):
-    # env_name = 'CartPole-v1'
-    # env_name = 'LunarLander-v2'
-    render_mode = "rgb_array"
-    max_step_episode = 500
-    random_initial_position = False
+
     env = gym.make(env_name,
                     render_mode=render_mode,
                     max_episode_steps=max_step_episode,
@@ -47,28 +62,10 @@ for i in range(num_trial):
                     video=False)
     # env = gym.make(env_name)
     # print('Created')
-
- 
-    # Hyperparameters
-    BATCH_SIZE = 128
-    GAMMA = 0.99
-    EPS_START = 0.9
-    EPS_END = 0.05
-    EPS_DECAY = 1000
-    TAU = 0.005  # Tau is the update rate of the target network
-    LR = 1e-4
-
-    hid_dim = 128
-    capacity = 10_000
-
+    #folder/
     unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
     name = f'logs/{env_name}_nag{num_agents}_{alg[0]}_nt{num_trial:03}_run_{unique_id}'
-    system_name = platform.system()
-    if platform.system() == 'Linux':
-        log_dir = f'/data/p285087/drl_alg/{name}'
-    else:
-        log_dir = name
-
+    log_dir = f'/data/p285087/drl_alg/{name}' if system_name == 'Linux' else name
 
     my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir)
     my_dqn.train(num_episodes)
