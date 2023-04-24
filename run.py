@@ -73,7 +73,7 @@ for i in range(num_trial):
     unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
     name = f'{folder}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
-    log_dir = f'/home4/p285087/data/DRL_labs/{name}' if system_name == 'Linux' else name
+    log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
     my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn)
     my_dqn.train(num_episodes)
