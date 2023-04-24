@@ -132,7 +132,9 @@ class Agent:
         self.writer = SummaryWriter(log_dir)
         self.loss = torch.zeros(1)
         self.cum_reward = deque([], maxlen=100)
+        self.cum_discounted_reward = deque([], maxlen=100)
         self.max_cum_reward = 0
+        self.max_cum_discounted_reward = 0
         self.log_dir = log_dir
 
 
@@ -245,8 +247,11 @@ class Agent:
                 if done:
                     self.steps_done += 1
                     self.cum_reward.append(cum_reward)
-                    if len(self.cum_reward) == self.cum_reward.maxlen and np.mean(self.cum_reward) > self.max_cum_reward:
-                        self.max_cum_reward = np.mean(self.cum_reward)
+                    self.cum_discounted_reward.append(cum_discounted_reward)
+                    if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+                        self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+                    # if len(self.cum_reward) == self.cum_reward.maxlen and np.mean(self.cum_reward) > self.max_cum_reward:
+                    #     self.max_cum_reward = np.mean(self.cum_reward)
                         # save current neural network
                         torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
                         self.evaluate(50, i_episode, self.policy_net)
