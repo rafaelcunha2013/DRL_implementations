@@ -32,6 +32,7 @@ if system_name == 'Linux':
     nn = ['linear'] 
     capacity = int(sys.argv[7])
     hid_dim = int(sys.argv[8])
+    EPS_DECAY = int(sys.argv[9])
 
 else:
     alg = ['ddqn']
@@ -43,6 +44,7 @@ else:
     nn = ['linear'] 
     capacity = 10_000
     hid_dim = 256
+    EPS_DECAY = 1000
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -63,7 +65,7 @@ for i in range(num_trial):
     GAMMA = 0.99
     EPS_START = 1.0
     EPS_END = 0.1
-    EPS_DECAY = 1000
+    # EPS_DECAY = 1000
     TAU = 0.005  # Tau is the update rate of the target network
     LR = 0.00025 #1e-4
 
