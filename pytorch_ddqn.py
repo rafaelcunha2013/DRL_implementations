@@ -106,9 +106,10 @@ class Agent:
 
         self.alg = alg
 
-        n_actions = env.get_num_actions() #env.action_space.n
-        # state, _ = env.reset()
-        state = env.reset()
+        # n_actions = env.get_num_actions() #env.action_space.n
+        n_actions = env.action_space.n
+        state, _ = env.reset()
+        # state = env.reset()
         n_observations = len(state)  # Why don't get env.observation_space.box (Generalize to discrete and continuous environmen)
 
         if 'linear' in nn:
@@ -146,8 +147,8 @@ class Agent:
                 # view(1, 1) --> Reshape a tensor to have torch.Size([1, 1]) instead of torch.Size([])
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
-            # return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
-            return torch.tensor([[np.random.randint(self.env.get_num_actions())]], device=self.device, dtype=torch.long)
+            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
+            # return torch.tensor([[np.random.randint(self.env.get_num_actions())]], device=self.device, dtype=torch.long)
 
 
             
