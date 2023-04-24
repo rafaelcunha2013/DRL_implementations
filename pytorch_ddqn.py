@@ -138,7 +138,7 @@ class Agent:
 
     def select_action(self, state):
         self.eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done / self.eps_decay)
-        self.steps_done += 1
+        # self.steps_done += 1
 
         if random.random() > self.eps_threshold:
             with torch.no_grad():
@@ -243,6 +243,7 @@ class Agent:
                 self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
+                    self.steps_done += 1
                     self.cum_reward.append(cum_reward)
                     if len(self.cum_reward) == self.cum_reward.maxlen and np.mean(self.cum_reward) > self.max_cum_reward:
                         self.max_cum_reward = np.mean(self.cum_reward)
