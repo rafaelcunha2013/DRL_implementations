@@ -18,3 +18,6 @@ sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 2
 sbatch run_four_room.sh ddqn 20_000 1 four-room-multiagent-v0 1
 sbatch bert.sh dqn 4_000 1 four-room-multiagent-v0 2 logs4 bertsekas
 sbatch bert.sh dqn 4_000 1 four-room-multiagent-v0 2 logs4 regular
+
+Example usage of run2.sh
+sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256
