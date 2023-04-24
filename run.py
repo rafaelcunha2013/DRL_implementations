@@ -36,7 +36,7 @@ if system_name == 'Linux':
 else:
     alg = ['ddqn']
     num_episodes = 10
-    num_trial = 3
+    num_trial = 1
     env_name = 'four-room-multiagent-v0'
     num_agents = 1 
     folder = 'logs4'
