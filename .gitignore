@@ -7,3 +7,4 @@ logs2.*
 copy_folder.sh
 logs3.zip
 desktop.ini
+__pycache__/pytorch_ddqn.cpython-310.pyc
