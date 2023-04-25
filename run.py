@@ -33,6 +33,7 @@ if system_name == 'Linux':
     capacity = int(sys.argv[7])
     hid_dim = int(sys.argv[8])
     EPS_DECAY = int(sys.argv[9])
+    max_step_episode = int(sys.argv[10])
 
 else:
     alg = ['ddqn']
@@ -45,12 +46,13 @@ else:
     capacity = 10_000
     hid_dim = 256
     EPS_DECAY = 1000
+    max_step_episode = 500
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
     # env_name = 'LunarLander-v2'      
     render_mode = "rgb_array"
-    max_step_episode = 500
+    # max_step_episode = 500
     random_initial_position = False
     env = gym.make(env_name,
                     render_mode=render_mode,
