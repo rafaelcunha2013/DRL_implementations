@@ -31,6 +31,10 @@ ssh -L 6006:localhost:6006 -X p285087@interactive1.hb.hpc.rug.nl
 Accessing the working folder
 cd $HOME/studies/DRL_implementations
 
+Deleting desktop.ini files in git.bash terminal on windows
+find . -type f -name "desktop.ini" -exec rm {} \; 
+
+
 How to call tensorboard
 tensorboard --logdir="/home4/p285087/data/four_room"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
