@@ -10,3 +10,4 @@ desktop.ini
 __pycache__/pytorch_ddqn.cpython-310.pyc
 *.pth 
 *.mp4
+*.pyc
