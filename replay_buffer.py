@@ -4,7 +4,7 @@ import numpy as np
 
 class PrioritizeExperienceReplay:
 
-    def __init__(self, capacity, alpha):
+    def __init__(self, capacity, alpha, env):
         self.capacity = capacity
         self.alpha = alpha
 
@@ -20,6 +20,10 @@ class PrioritizeExperienceReplay:
             'done': np.zeros(shape=capacity, dtype=np.bool)
         }
 
+        state, _ = env.reset()
+        state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        observation, reward, terminated, truncated, _ = self.env.step(action.item())
+        n_actions = env.action_space.n
 
         # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
         # next_state = torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)

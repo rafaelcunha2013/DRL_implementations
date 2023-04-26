@@ -25,6 +25,8 @@ from torchrl.data import ListStorage, PrioritizedReplayBuffer
 from torchrl.data import LazyTensorStorage, TensorDictPrioritizedReplayBuffer
 from tensordict import TensorDict
 
+from replay_buffer import PrioritizeExperienceReplay
+
 
 ###########################
 # Replay Memory
@@ -130,7 +132,9 @@ class Agent:
 
         if 'per' in self.buffer:
             # self.memory = PrioritizedReplayBuffer(alpha=0.7, beta=0.9, storage=ListStorage(capacity))
-            self.memory = TensorDictPrioritizedReplayBuffer(alpha=0.7, beta=1.1, storage=LazyTensorStorage(capacity), batch_size=batch_size)
+            # self.memory = TensorDictPrioritizedReplayBuffer(alpha=0.7, beta=1.1, storage=LazyTensorStorage(capacity), batch_size=batch_size)
+            alpha = 0.7
+            self.memory = PrioritizeExperienceReplay(capacity, alpha, env)
 
         elif 'simple' in self.buffer:
             self.memory = ReplayMemory(capacity=capacity)
