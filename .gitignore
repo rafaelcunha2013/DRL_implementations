@@ -11,3 +11,4 @@ __pycache__/pytorch_ddqn.cpython-310.pyc
 *.pth 
 *.mp4
 *.pyc
+per_buffer.py
