@@ -22,6 +22,9 @@ import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 from torchrl.data import ListStorage, PrioritizedReplayBuffer
 
+from torchrl.data import LazyTensorStorage, TensorDictPrioritizedReplayBuffer
+from tensordict import TensorDict
+
 
 ###########################
 # Replay Memory
@@ -95,7 +98,8 @@ class CNN(nn.Module):
 class Agent:
 
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN']):
+                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'],
+                 buffer=['simple']):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -106,6 +110,7 @@ class Agent:
         self.tau = tau
 
         self.alg = alg
+        self.buffer = buffer
 
         # n_actions = env.get_num_actions() #env.action_space.n
         n_actions = env.action_space.n
@@ -122,7 +127,13 @@ class Agent:
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=lr, amsgrad=True)
-        self.memory = ReplayMemory(capacity=capacity)
+
+        if 'per' in self.buffer:
+            # self.memory = PrioritizedReplayBuffer(alpha=0.7, beta=0.9, storage=ListStorage(capacity))
+            self.memory = TensorDictPrioritizedReplayBuffer(alpha=0.7, beta=1.1, storage=LazyTensorStorage(capacity), batch_size=batch_size)
+
+        elif 'simple' in self.buffer:
+            self.memory = ReplayMemory(capacity=capacity)
 
         # If gpu is to be used
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -159,17 +170,34 @@ class Agent:
     def optimize_model(self):
         if len(self.memory) < self.batch_size:
             return
-        transitions = self.memory.sample(self.batch_size)
+        
+        if 'per' in self.buffer:
+            # If using PER buffer, also get index to be updated
+            # transitions, info = self.memory.sample(self.batch_size, return_info=True)
+            transitions, info = self.memory.sample(return_info=True)
+        else:
+            transitions = self.memory.sample(self.batch_size)
+
+
         # Converts batch-array of Transitions to Transitons of batch-arrays
-        batch = Transition(*zip(*transitions))
+        # batch = TransitionPER(*zip(*transitions)) if 'per' in self.buffer else Transition(*zip(*transitions)) 
+        if 'per' in self.buffer:
+            non_final_mask = torch.tensor([s is not None for s in transitions['next_state']], dtype=torch.bool)
+            non_final_next_states = torch.stack([s for s in transitions['next_state'] if s is not None])
 
-        # Compute a mask of non-final states and concatenate the batch elements
-        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
-        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+            state_batch = transitions['state']
+            action_batch = transitions['action']
+            reward_batch = transitions['reward']
+        else:
+            batch = Transition(*zip(*transitions))
 
-        state_batch = torch.cat(batch.state)
-        action_batch = torch.cat(batch.action)
-        reward_batch = torch.cat(batch.reward)
+            # Compute a mask of non-final states and concatenate the batch elements
+            non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
+            non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+
+            state_batch = torch.cat(batch.state)
+            action_batch = torch.cat(batch.action)
+            reward_batch = torch.cat(batch.reward)
 
 
         # --- Core of the DQN algorithm -------
@@ -190,6 +218,13 @@ class Agent:
 
         expected_state_action_values = (next_state_values * self.gamma) + reward_batch
         # --- Core of the DQN algorithm -------
+
+        # --- If using PER buffer ------------
+        delta = expected_state_action_values.unsqueeze(1) - state_action_values
+
+        priority = delta  #### ------ CHECK THIS LINE ------------
+        self.memory.update_priority(transitions['index'], priority)
+        # -----------------------------------
 
         # Compute Huber loss
         criterion = nn.SmoothL1Loss()
@@ -228,7 +263,12 @@ class Agent:
                 next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
 
                 # Store the transition in memory
-                self.memory.push(state, action, next_state, reward)
+                if 'per' in self.buffer:
+                    data = TensorDict({"state": state, "action": action, "next_state": next_state, "reward": reward}, [1])
+                    self.memory.extend(data)
+                    # self.memory.update_priority(index, 1.)
+                else:
+                    self.memory.push(state, action, next_state, reward)
 
                 # Move to the next state
                 state = next_state
