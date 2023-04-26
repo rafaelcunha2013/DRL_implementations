@@ -2,7 +2,8 @@
 import gym
 import gym_sf
 
-from pytorch_ddqn import Agent
+# from pytorch_ddqn import Agent
+from pytorch_ddqn_per import Agent
 
 import platform
 import sys
@@ -34,6 +35,7 @@ if system_name == 'Linux':
     hid_dim = int(sys.argv[8])
     EPS_DECAY = int(sys.argv[9])
     max_step_episode = int(sys.argv[10])
+    buffer = ['per']
 
 else:
     alg = ['ddqn']
@@ -47,6 +49,7 @@ else:
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
+    buffer = ['per']
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -79,5 +82,8 @@ for i in range(num_trial):
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
-    my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn)
+
+    my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
+
+
     my_dqn.train(num_episodes)
