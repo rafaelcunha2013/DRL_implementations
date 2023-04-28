@@ -2,8 +2,8 @@
 import gym
 import gym_sf
 
-# from pytorch_ddqn import Agent
-from pytorch_ddqn_per import Agent
+from pytorch_ddqn import Agent
+# from pytorch_ddqn_per import Agent
 
 import platform
 import sys
