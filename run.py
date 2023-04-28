@@ -35,7 +35,7 @@ if system_name == 'Linux':
     hid_dim = int(sys.argv[8])
     EPS_DECAY = int(sys.argv[9])
     max_step_episode = int(sys.argv[10])
-    buffer = ['per']
+    buffer = [sys.argv[11]]
 
 else:
     alg = ['ddqn']
@@ -49,7 +49,7 @@ else:
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
-    buffer = ['per']
+    buffer = ['per'] # or ['simple']
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
