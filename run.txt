@@ -46,3 +46,4 @@ sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000 5_000
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok_2 100_000 256 10_000 5_000
+sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256 10_000 5_000 simple
