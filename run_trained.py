@@ -29,10 +29,10 @@ def run_episode(episode_model, env_test):
     env_test.close()
 
 name = "four-room-multiagent-v0"
-name = "four-room-v0"
-env = gym.make(name, render_mode="rgb_array_list", max_episode_steps=100, video=True, random_initial_position=False)
-# env = gym.make(name, render_mode="rgb_array_list", max_episode_steps=100, video=True,
-#                random_initial_position=False, max_num_agents=1)
+# name = "four-room-v0"
+# env = gym.make(name, render_mode="rgb_array_list", max_episode_steps=100, video=True, random_initial_position=False)
+env = gym.make(name, render_mode="rgb_array_list", max_episode_steps=100, video=True,
+                random_initial_position=False, max_num_agents=2)
 
 
 # Initialize the model
@@ -42,7 +42,7 @@ n_observations = len(state)
 model = Network(n_observations, n_actions, 256)
 
 # Make sure to set the map_location if you saved the model on a different device (e.g., GPU) than the one you're loading it on (e.g., CPU)
-state_dict = torch.load("my_model.pth", map_location=torch.device('cpu'))
+state_dict = torch.load("my_model2.pth", map_location=torch.device('cpu'))
 
 # Load the state_dict into your model
 model.load_state_dict(state_dict)

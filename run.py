@@ -49,7 +49,7 @@ else:
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
-    buffer = ['per'] # or ['simple']
+    buffer = ['simple'] # or ['simple'] or ['per']
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -57,12 +57,22 @@ for i in range(num_trial):
     render_mode = "rgb_array"
     # max_step_episode = 500
     random_initial_position = False
+    initial_position=[(12,0), (12, 0)] if num_agents == 2 else [(12,0)]
+    given_initial_position=True
+    # if given_initial_position:
+    #     if num_agents == 2:
+    #         initial_position=[(12,0), (12, 0)]
+    #     else:
+    #         initial_position=[(12,0)]
+
     env = gym.make(env_name,
                     render_mode=render_mode,
                     max_episode_steps=max_step_episode,
                     random_initial_position=random_initial_position,
                     max_num_agents=num_agents,
-                    video=False)
+                    video=False,
+                    given_initial_position=given_initial_position,
+                    initial_position=initial_position)
 
 
     # Hyperparameters
@@ -78,7 +88,7 @@ for i in range(num_trial):
     # capacity = 10_000 #1_000_000  
     
     unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-    name = f'{folder}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
+    name = f'{folder}_{num_agents}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
