@@ -249,8 +249,8 @@ class AgentOneAtTime:
 
     def extend_state(self, state_batch, action_batch):
         # Extract first and second values from dictionary
-        action1_batch = torch.tensor([self.env.action_dict[str(key.item())][0] for key in action_batch.flatten()])       
-        action2_batch = torch.tensor([self.env.action_dict[str(key.item())][1] for key in action_batch.flatten()])
+        action1_batch = torch.tensor([self.env.action_dict[key.item()][0] for key in action_batch.flatten()])       
+        action2_batch = torch.tensor([self.env.action_dict[key.item()][1] for key in action_batch.flatten()])
 
         action1_batch = action1_batch.reshape(action_batch.shape)
         action2_batch = action2_batch.reshape(action_batch.shape)

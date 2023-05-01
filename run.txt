@@ -38,6 +38,10 @@ find . -type f -name "desktop.ini" -exec rm {} \;
 How to call tensorboard
 tensorboard --logdir="/home4/p285087/data/four_room"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
+tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2"
+
+Activating virtual environment
+source $HOME/.envs/DRL_lab/bin/activate
 
 Example usage of run2.sh
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256
@@ -47,3 +51,5 @@ sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000 5_000
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok_2 100_000 256 10_000 5_000
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256 10_000 5_000 simple
+sbatch --job-name=4room --time=40:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple
+sbatch --job-name=bert --time=40:00:00 --mem=3G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime

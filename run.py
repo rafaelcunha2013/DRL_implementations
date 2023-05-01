@@ -2,7 +2,7 @@
 import gym
 import gym_sf
 
-from pytorch_ddqn import Agent
+from pytorch_ddqn import Agent, AgentOneAtTime
 # from pytorch_ddqn_per import Agent
 
 import platform
@@ -36,20 +36,22 @@ if system_name == 'Linux':
     EPS_DECAY = int(sys.argv[9])
     max_step_episode = int(sys.argv[10])
     buffer = [sys.argv[11]]
+    agent_name = [sys.argv[12]]
 
 else:
-    alg = ['ddqn']
+    alg = ['dqn']
     num_episodes = 10
     num_trial = 1
     env_name = 'four-room-multiagent-v0'
-    num_agents = 1 
-    folder = 'logs4'
+    num_agents = 2 
+    folder = 'logs5'
     nn = ['linear'] 
     capacity = 10_000
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
     buffer = ['simple'] # or ['simple'] or ['per']
+    agent_name = "AgentAtTime" # 'Agent' # or "AgentAtTime"
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -92,11 +94,13 @@ for i in range(num_trial):
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
+    agent_classes = {'Agent': Agent, "AgentAtTime": AgentOneAtTime}
+    my_agent = agent_classes[agent_name]
 
     if 'per' in buffer:
-        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
+        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
     else:
-        my_dqn = Agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn)
+        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn)
 
 
     my_dqn.train(num_episodes)

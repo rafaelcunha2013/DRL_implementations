@@ -330,9 +330,9 @@ class Agent:
 class AgentOneAtTime(Agent):
     
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=2):
+                 lr, hid_dim=128, capacity=10_000, alg=['dqn'], log_dir='logs/', nn=['linear'], n_agents=2):
         super().__init__(env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                        lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'])
+                        lr, hid_dim, capacity, alg, log_dir, nn)
 
 
         # Networks for the extended agents 1 and 2
@@ -341,6 +341,8 @@ class AgentOneAtTime(Agent):
         self.target_net = [None] * n_agents
         self.optimizer = [None] * n_agents
         self.loss = [None] * n_agents
+
+        self.n_actions = int(env.action_space.n ** (1/n_agents))
        
         for i in range(n_agents):
 
@@ -373,8 +375,8 @@ class AgentOneAtTime(Agent):
 
     def extend_state(self, state_batch, action_batch):
         # Extract first and second values from dictionary
-        action1_batch = torch.tensor([self.env.action_dict[str(key.item())][0] for key in action_batch.flatten()])       
-        action2_batch = torch.tensor([self.env.action_dict[str(key.item())][1] for key in action_batch.flatten()])
+        action1_batch = torch.tensor([self.env.action_dict[key.item()][0] for key in action_batch.flatten()])       
+        action2_batch = torch.tensor([self.env.action_dict[key.item()][1] for key in action_batch.flatten()])
 
         action1_batch = action1_batch.reshape(action_batch.shape)
         action2_batch = action2_batch.reshape(action_batch.shape)
@@ -395,29 +397,34 @@ class AgentOneAtTime(Agent):
         non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
         non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
-        # Individualize the actions and augment the state
-        state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
-
         state_batch = torch.cat(batch.state)
         action_batch = torch.cat(batch.action)
         reward_batch = torch.cat(batch.reward)
 
+        # Individualize the actions and augment the state
+        state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
+
 
         # --- Core of the DQN algorithm -------
-        state_action1_values = self.policy_net1(state_batch).gather(1, action1_batch)
-        state_action1_action2_values = self.policy_net2(state_action1_batch).gather(1, action2_batch)
+        state_action1_values = self.policy_net[0](state_batch).gather(1, action1_batch)
+        state_action1_action2_values = self.policy_net[1](state_action1_batch).gather(1, action2_batch)
 
         next_state_values = torch.zeros(self.batch_size, device=self.device)
 
+
         if 'dqn' in self.alg:
             with torch.no_grad():
-                next_state_values[non_final_mask] = self.target_net1(non_final_next_states).max(1)[0]
-                expected_state_action1_values = self.target_net2(state_action1_batch).max(1)[0]
+                next_state_values[non_final_mask] = self.target_net[0](non_final_next_states).max(1)[0]
+                expected_state_action1_values = self.target_net[1](state_action1_batch).max(1)[0]
 
         if 'ddqn' in self.alg:
             # next_action_values = torch.zeros(self.batch_size, device=self.device)
             with torch.no_grad():
-                next_action_values = self.policy_net(non_final_next_states).argmax(1).view(-1, 1)
+                next_state_action1_values = self.policy_net[0](non_final_next_states).argmax(1).view(-1, 1)
+                next_state_action1_action2_values = self.policy_net[1](state_action1_batch).gather(1, action2_batch)
+
+                next_action1_values = self.policy_net[0](non_final_next_states).argmax(1).view(-1, 1)
+                next_action1_action2_values = self.policy_net[1](non_final_next_states).argmax(1).view(-1, 1)
                 next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
 
 
