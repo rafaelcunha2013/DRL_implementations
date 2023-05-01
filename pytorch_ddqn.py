@@ -94,7 +94,7 @@ class CNN(nn.Module):
 class Agent:
 
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN']):
+                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=1):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -105,19 +105,22 @@ class Agent:
         self.tau = tau
 
         self.alg = alg
+        self.evaluate_flag = False
+
+        self.n_agents = n_agents
+        self.n_actions = int(env.action_space.n ** (1/n_agents))
 
         # n_actions = env.get_num_actions() #env.action_space.n
         n_actions = env.action_space.n
-        state, _ = env.reset()
-        # state = env.reset()
-        n_observations = len(state)  # Why don't get env.observation_space.box (Generalize to discrete and continuous environmen)
+        self.state, _ = env.reset()
+        self.n_observations = len(self.state)  # Why don't get env.observation_space.box (Generalize to discrete and continuous environmen)
 
         if 'linear' in nn:
-            self.policy_net = Network(n_observations, n_actions, hid_dim)
-            self.target_net = Network(n_observations, n_actions, hid_dim)
+            self.policy_net = Network(self.n_observations, n_actions, hid_dim)
+            self.target_net = Network(self.n_observations, n_actions, hid_dim)
         elif 'CNN' in nn:
-            self.policy_net = CNN(state.shape[-1], n_actions)
-            self.target_net = CNN(state.shape[-1], n_actions)           
+            self.policy_net = CNN(self.state.shape[-1], n_actions)
+            self.target_net = CNN(self.state.shape[-1], n_actions)           
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=lr, amsgrad=True)
@@ -139,8 +142,7 @@ class Agent:
 
 
     def select_action(self, state):
-        self.eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done / self.eps_decay)
-        # self.steps_done += 1
+        self.eps_threshold = 0 if self.evaluate_flag else self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done / self.eps_decay)
 
         if random.random() > self.eps_threshold:
             with torch.no_grad():
@@ -151,9 +153,7 @@ class Agent:
         else:
             return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
             # return torch.tensor([[np.random.randint(self.env.get_num_actions())]], device=self.device, dtype=torch.long)
-
-
-            
+   
     
     def optimize_model(self):
         if len(self.memory) < self.batch_size:
@@ -238,25 +238,26 @@ class Agent:
 
                 # Should I update the model after every single step?
                 # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
-                target_net_state_dict = self.target_net.state_dict()
-                policy_net_state_dict = self.policy_net.state_dict()
-                for key in policy_net_state_dict:
-                    target_net_state_dict[key] = policy_net_state_dict[key] * self.tau + target_net_state_dict[key] * (1 - self.tau)
-                self.target_net.load_state_dict(target_net_state_dict)
+                self.update_network()
+                # target_net_state_dict = self.target_net.state_dict()
+                # policy_net_state_dict = self.policy_net.state_dict()
+                # for key in policy_net_state_dict:
+                #     target_net_state_dict[key] = policy_net_state_dict[key] * self.tau + target_net_state_dict[key] * (1 - self.tau)
+                # self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
                     self.steps_done += 1
                     self.cum_reward.append(cum_reward)
                     self.cum_discounted_reward.append(cum_discounted_reward)
-                    if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
-                        self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
-                    # if len(self.cum_reward) == self.cum_reward.maxlen and np.mean(self.cum_reward) > self.max_cum_reward:
-                    #     self.max_cum_reward = np.mean(self.cum_reward)
-                        # save current neural network
-                        torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
-                        self.evaluate(50, i_episode, self.policy_net)
-                    if i_episode % 1000 == 0:
-                        self.evaluate(50, i_episode, self.policy_net)
+
+                    # Saving and evaluating the model
+                    self.save_evaluate_model(i_episode)
+                    # if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+                    #     self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+                    #     torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
+                    #     self.evaluate(50, i_episode, self.policy_net)
+                    # if i_episode % 1000 == 0:
+                    #     self.evaluate(50, i_episode, self.policy_net)
 
 
                     self.writer.add_scalar('loss', loss_mean, i_episode) 
@@ -266,8 +267,30 @@ class Agent:
                     self.writer.add_scalar('epsilon', self.eps_threshold, i_episode)
                     break
         self.writer.close()
+        
+
+    def soft_update(self, policy, target):
+        target_net_state_dict = target
+        policy_net_state_dict = policy
+        for key in policy_net_state_dict:
+            target_net_state_dict[key] = policy_net_state_dict[key] * self.tau + target_net_state_dict[key] * (1 - self.tau)
+        return target_net_state_dict
+
+    def update_network(self):
+        self.target_net.load_state_dict(self.soft_update(self.policy_net.state_dict(), self.target_net.state_dict()))
+
+    def save_evaluate_model(self, i_episode):
+        # Saving and evaluating the model
+        if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+            self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+            torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
+            self.evaluate(50, i_episode, self.policy_net)
+        if i_episode % 1000 == 0:
+            self.evaluate(50, i_episode, self.policy_net)
+
 
     def evaluate(self, num_episodes, episode_number, model):
+        self.evaluate_flag = True
         history_cum_reward = []
         history_cum_disc_reward = []
         for i_episode in range(num_episodes):
@@ -278,8 +301,9 @@ class Agent:
             cum_discounted_reward = 0
             cum_gamma = self.gamma
             for t in count():
-                with torch.no_grad():
-                    action = model(state).max(1)[1].view(1, 1)
+                action = self.select_action(state)
+                # with torch.no_grad():
+                #     action = model(state).max(1)[1].view(1, 1)
                 observation, reward, terminated, truncated, _ = self.env.step(action.item())
                 # observation, reward, terminated = self.env.step(action.item())
                 cum_reward += reward
@@ -299,10 +323,193 @@ class Agent:
                     break
         self.writer.add_scalar('reward/evaluated', np.mean(history_cum_reward), episode_number)
         self.writer.add_scalar('disc_reward/evaluated', np.mean(cum_discounted_reward), episode_number)
+        self.evaluate_flag = False
 
 
 
+class AgentOneAtTime(Agent):
+    
+    def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
+                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=2):
+        super().__init__(env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
+                        lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'])
 
+
+        # Networks for the extended agents 1 and 2
+        # Network has extended input n_observations + n_actions (Consider a1 and a2 have the same dimensions)
+        self.policy_net = [None] * n_agents
+        self.target_net = [None] * n_agents
+        self.optimizer = [None] * n_agents
+        self.loss = [None] * n_agents
+       
+        for i in range(n_agents):
+
+            self.policy_net[i] = Network(self.n_observations + i, self.n_actions, hid_dim)
+            self.target_net[i] = Network(self.n_observations + i, self.n_actions, hid_dim)
+            self.target_net[i].load_state_dict(self.policy_net[i].state_dict())
+            self.optimizer[i] = optim.AdamW(self.policy_net[i].parameters(), lr=lr, amsgrad=True)
+            self.loss[i] = torch.zeros(1)
+
+
+    def select_action(self, state):
+        self.eps_threshold = 0 if self.evaluate_flag else self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done / self.eps_decay)
+        # eps_threshold = self.eps_end + (self.eps_start - self.eps_end) * math.exp(-1. * self.steps_done / self.eps_decay)
+
+        if random.random() > self.eps_threshold:
+            with torch.no_grad():
+                # t.max(1) --> Largest column value of each row.
+                # [1] Second column on max --> Index where max element was found, thus we pick the action that maximizes reward
+                # view(1, 1) --> Reshape a tensor to have torch.Size([1, 1]) instead of torch.Size([])
+                action1 = self.policy_net[0](state).max(1)[1].view(1, 1)
+                state_action1 = torch.cat((state, action1), dim=1)
+                action2 = self.policy_net[1](state_action1).max(1)[1].view(1, 1)
+                action = action1 + self.n_actions * action2
+
+                return action
+        else:
+
+            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)    
+
+
+    def extend_state(self, state_batch, action_batch):
+        # Extract first and second values from dictionary
+        action1_batch = torch.tensor([self.env.action_dict[str(key.item())][0] for key in action_batch.flatten()])       
+        action2_batch = torch.tensor([self.env.action_dict[str(key.item())][1] for key in action_batch.flatten()])
+
+        action1_batch = action1_batch.reshape(action_batch.shape)
+        action2_batch = action2_batch.reshape(action_batch.shape)
+
+        state_action1_batch = torch.cat((state_batch, action1_batch), dim=1)
+
+        return state_action1_batch, action1_batch, action2_batch
+    
+
+    def optimize_model(self):
+        if len(self.memory) < self.batch_size:
+            return
+        transitions = self.memory.sample(self.batch_size)
+        # Converts batch-array of Transitions to Transitons of batch-arrays
+        batch = Transition(*zip(*transitions))
+
+        # Compute a mask of non-final states and concatenate the batch elements
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+
+        # Individualize the actions and augment the state
+        state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
+
+        state_batch = torch.cat(batch.state)
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
+
+
+        # --- Core of the DQN algorithm -------
+        state_action1_values = self.policy_net1(state_batch).gather(1, action1_batch)
+        state_action1_action2_values = self.policy_net2(state_action1_batch).gather(1, action2_batch)
+
+        next_state_values = torch.zeros(self.batch_size, device=self.device)
+
+        if 'dqn' in self.alg:
+            with torch.no_grad():
+                next_state_values[non_final_mask] = self.target_net1(non_final_next_states).max(1)[0]
+                expected_state_action1_values = self.target_net2(state_action1_batch).max(1)[0]
+
+        if 'ddqn' in self.alg:
+            # next_action_values = torch.zeros(self.batch_size, device=self.device)
+            with torch.no_grad():
+                next_action_values = self.policy_net(non_final_next_states).argmax(1).view(-1, 1)
+                next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
+
+
+        expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
+        # --- Core of the DQN algorithm -------
+
+        # Compute Huber loss
+        criterion = nn.SmoothL1Loss()
+        self.loss[0] = criterion(state_action1_values, expected_state_action1_values.unsqueeze(1))
+        self.loss[1] = criterion(state_action1_action2_values, expected_state_action1_action2_values.unsqueeze(1))  
+
+        for i in range(self.n_agents):
+            # Optimize the model
+            self.optimizer[i].zero_grad()
+            self.loss[i].backward()
+
+            # In-place gradient clipping
+            torch.nn.utils.clip_grad_value_(self.policy_net[i].parameters(), 100)
+            self.optimizer[i].step()
+
+
+    def train(self, num_episodes):
+        if torch.cuda.is_available():
+            num_episodes *= 10
+
+        for i_episode in range(num_episodes):
+            state, info = self.env.reset()
+            # state = self.env.reset()
+            state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+            loss_mean = [0] * self.n_agents
+            cum_reward = 0
+            cum_discounted_reward = 0
+            cum_gamma = self.gamma
+            for t in count():
+                action = self.select_action(state)
+                observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                cum_reward += reward
+                cum_discounted_reward += cum_gamma * reward
+                cum_gamma *= self.gamma
+                reward = torch.tensor([reward], device=self.device)
+                done = terminated or truncated
+
+                next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+                # Store the transition in memory
+                self.memory.push(state, action, next_state, reward)
+
+                # Move to the next state
+                state = next_state
+
+                # Perform one step of the optimization (on the policy network)
+                self.optimize_model()
+                for i in range(self.n_agents):
+                    loss_mean[i] += (self.loss[i].item() - loss_mean[i]) / (t + 1)
+
+                # Should I update the model after every single step?
+                # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
+                self.update_network()
+
+
+                if done:
+                    self.steps_done += 1
+                    self.cum_reward.append(cum_reward)
+                    self.cum_discounted_reward.append(cum_discounted_reward)
+
+                    # Saving and evaluating the model
+                    self.save_evaluate_model(i_episode)
+
+                    for i in range(self.n_agents):
+                        self.writer.add_scalar('loss{i}', loss_mean[i], i_episode) 
+                    self.writer.add_scalar('episode_len', t+1, i_episode)
+                    self.writer.add_scalar('reward', cum_reward, i_episode)
+                    self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
+                    self.writer.add_scalar('epsilon', self.eps_threshold, i_episode)
+                    break
+        self.writer.close()
+
+    def update_network(self):
+        for i in range(self.n_agents):
+        # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
+            self.target_net[i].load_state_dict(self.soft_update(self.policy_net[i].state_dict(), self.target_net[i].state_dict()))
+
+    def save_evaluate_model(self, i_episode):
+        # Saving and evaluating the model
+        if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+            self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+            for i in range(self.n_agents):
+                torch.save(self.policy_net[i].state_dict(), os.path.join(self.log_dir, f'my_model_{i}.pth'))
+            self.evaluate(50, i_episode, self.policy_net)
+        if i_episode % 1000 == 0:
+            self.evaluate(50, i_episode, self.policy_net)
 
 
 if __name__ == '__main__':
