@@ -495,7 +495,7 @@ class AgentOneAtTime(Agent):
                     self.save_evaluate_model(i_episode)
 
                     for i in range(self.n_agents):
-                        self.writer.add_scalar('loss{i}', loss_mean[i], i_episode) 
+                        self.writer.add_scalar(f'loss{i}', loss_mean[i], i_episode) 
                     self.writer.add_scalar('episode_len', t+1, i_episode)
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
