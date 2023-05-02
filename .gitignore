@@ -13,3 +13,5 @@ __pycache__/pytorch_ddqn.cpython-310.pyc
 *.pyc
 per_buffer.py
 test.py
+schedule.xlsx
+*.xlsx
