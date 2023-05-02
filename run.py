@@ -38,6 +38,7 @@ if system_name == 'Linux':
     buffer = [sys.argv[11]]
     agent_name = sys.argv[12]
     BATCH_SIZE = int(sys.argv[13])
+    job_name = sys.argv[14]
 
 
 else:
@@ -55,6 +56,7 @@ else:
     buffer = ['simple'] # or ['simple'] or ['per']
     agent_name = "AgentAtTime" # 'Agent' # or "AgentAtTime"
     BATCH_SIZE = 32
+    job_name = '02'
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -64,11 +66,6 @@ for i in range(num_trial):
     random_initial_position = False
     initial_position=[(12,0), (12, 0)] if num_agents == 2 else [(12,0)]
     given_initial_position=True
-    # if given_initial_position:
-    #     if num_agents == 2:
-    #         initial_position=[(12,0), (12, 0)]
-    #     else:
-    #         initial_position=[(12,0)]
 
     env = gym.make(env_name,
                     render_mode=render_mode,
@@ -92,8 +89,10 @@ for i in range(num_trial):
     # hid_dim = 32  # When using with CNN (Atari Human architecture)
     # capacity = 10_000 #1_000_000  
     
-    unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
-    name = f'{folder}_{num_agents}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
+    # unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
+    # name = f'{folder}_{num_agents}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
+    unique_id = datetime.now().strftime("%m_%d__%H_%M_%S__%f")[:-4]
+    name = f'{folder}_{num_agents}/{job_name}_{alg[0]}_{agent_name}_{unique_id}'
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
