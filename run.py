@@ -37,7 +37,7 @@ if system_name == 'Linux':
     max_step_episode = int(sys.argv[10])
     buffer = [sys.argv[11]]
     agent_name = sys.argv[12]
-    BATCH_SIZE = int(sys.argv[12])
+    BATCH_SIZE = int(sys.argv[13])
 
 
 else:
