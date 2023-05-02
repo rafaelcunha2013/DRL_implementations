@@ -36,8 +36,9 @@ if system_name == 'Linux':
     EPS_DECAY = int(sys.argv[9])
     max_step_episode = int(sys.argv[10])
     buffer = [sys.argv[11]]
-    agent_name = [sys.argv[12]][0]
-    # print(agent_name)
+    agent_name = sys.argv[12]
+    BATCH_SIZE = int(sys.argv[12])
+
 
 else:
     alg = ['dqn']
@@ -53,6 +54,7 @@ else:
     max_step_episode = 500
     buffer = ['simple'] # or ['simple'] or ['per']
     agent_name = "AgentAtTime" # 'Agent' # or "AgentAtTime"
+    BATCH_SIZE = 32
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -79,7 +81,7 @@ for i in range(num_trial):
 
 
     # Hyperparameters
-    BATCH_SIZE = 32
+    # BATCH_SIZE = 32 # It worked with 128 before
     GAMMA = 0.99
     EPS_START = 1.0
     EPS_END = 0.1
