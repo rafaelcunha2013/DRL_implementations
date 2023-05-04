@@ -34,11 +34,14 @@ cd $HOME/studies/DRL_implementations
 Deleting desktop.ini files in git.bash terminal on windows
 find . -type f -name "desktop.ini" -exec rm {} \; 
 
+Tranfering files from Habrok to local computer
+alice@skries:~/workdir$ scp p285087@interactive2.hb.hpc.rug.nl:/mnt/pg-data/p285087/drl_alg/four-room-multiagent-v0_reward.png .
 
 How to call tensorboard
 tensorboard --logdir="/home4/p285087/data/four_room"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2"
+tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2/04_dqn_AgentAtTime_05_04__13_07_10__41"
 
 Activating virtual environment
 source $HOME/.envs/DRL_lab/bin/activate
@@ -53,3 +56,9 @@ sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-roo
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256 10_000 5_000 simple
 sbatch --job-name=4room --time=40:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple
 sbatch --job-name=bert --time=40:00:00 --mem=3G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime
+sbatch --job-name=01 --time=40:00:00 --mem=5G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128
+sbatch --job-name=02 --time=40:00:00 --mem=5G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 128
+sbatch --job-name=03 --time=40:00:00 --mem=5G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple Agent 128
+sbatch --job-name=01 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128
+sbatch --job-name=01 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128 01
+sbatch --job-name=04 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 128 04
