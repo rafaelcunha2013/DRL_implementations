@@ -101,13 +101,14 @@ class Agent:
         self.eps_start = eps_start
         self.eps_end = eps_end
         self.eps_decay = eps_decay
-        self.eps_threshold = None
         self.tau = tau
-
         self.alg = alg
-        self.evaluate_flag = False
-
+        self.log_dir = log_dir
         self.n_agents = n_agents
+
+
+        self.eps_threshold = None
+        self.evaluate_flag = False       
         self.n_actions = int(env.action_space.n ** (1/n_agents))
 
         # n_actions = env.get_num_actions() #env.action_space.n
@@ -138,7 +139,7 @@ class Agent:
         self.cum_discounted_reward = deque([], maxlen=100)
         self.max_cum_reward = 0
         self.max_cum_discounted_reward = 0
-        self.log_dir = log_dir
+        
 
 
     def select_action(self, state):
@@ -335,6 +336,16 @@ class AgentOneAtTime(Agent):
                         lr, hid_dim, capacity, alg, log_dir, nn)
 
 
+        self.env = env
+        self.batch_size = batch_size
+        self.gamma = gamma
+        self.eps_start = eps_start
+        self.eps_end = eps_end
+        self.eps_decay = eps_decay
+        self.tau = tau
+        self.alg = alg
+        self.log_dir = log_dir
+        self.n_agents = n_agents
         # Networks for the extended agents 1 and 2
         # Network has extended input n_observations + n_actions (Consider a1 and a2 have the same dimensions)
         self.policy_net = [None] * n_agents
