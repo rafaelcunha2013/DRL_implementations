@@ -431,12 +431,12 @@ class AgentOneAtTime(Agent):
         if 'ddqn' in self.alg:
             # next_action_values = torch.zeros(self.batch_size, device=self.device)
             with torch.no_grad():
-                next_state_action1_values = self.policy_net[0](non_final_next_states).argmax(1).view(-1, 1)
-                next_state_action1_action2_values = self.policy_net[1](state_action1_batch).gather(1, action2_batch)
-
                 next_action1_values = self.policy_net[0](non_final_next_states).argmax(1).view(-1, 1)
-                next_action1_action2_values = self.policy_net[1](non_final_next_states).argmax(1).view(-1, 1)
-                next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
+                next_state_values[non_final_mask] = self.target_net[0](non_final_next_states).gather(1, next_action1_values).view(-1)
+
+                action2_values = self.policy_net[1](state_action1_batch).argmax(1).view(-1, 1)
+                expected_state_action1_values = self.target_net[1](state_action1_batch).gather(1, action2_values).view(-1)
+
 
 
         expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
@@ -506,7 +506,7 @@ class AgentOneAtTime(Agent):
                     self.save_evaluate_model(i_episode)
 
                     for i in range(self.n_agents):
-                        self.writer.add_scalar(f'loss{i}', loss_mean[i], i_episode) 
+                        self.writer.add_scalar(f'loss/loss{i}', loss_mean[i], i_episode) 
                     self.writer.add_scalar('episode_len', t+1, i_episode)
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
