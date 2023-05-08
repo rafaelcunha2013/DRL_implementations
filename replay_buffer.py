@@ -16,14 +16,14 @@ class PrioritizeExperienceReplay:
             'obs': np.zeros(shape=(capacity, 4, 84, 84), dtype=np.uint8),
             'action': np.zeros(shape=capacity, dtype=np.int32),
             'reward': np.zeros(shape=capacity, dtype=np.float32),
-            'next_obs': np.zeros(shape=(capacity, 4, 84, 84), dtype=np.uint8),
-            'done': np.zeros(shape=capacity, dtype=np.bool)
+            'next_obs': np.zeros(shape=(capacity, 4, 84, 84), dtype=np.uint8)#,
+            #'done': np.zeros(shape=capacity, dtype=np.bool)
         }
 
-        state, _ = env.reset()
-        state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
-        observation, reward, terminated, truncated, _ = self.env.step(action.item())
-        n_actions = env.action_space.n
+        # state, _ = env.reset()
+        # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+        # observation, reward, terminated, truncated, _ = self.env.step(action.item())
+        # n_actions = env.action_space.n
 
         # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
         # next_state = torch.tensor(next_state, dtype=torch.float32, device=self.device).unsqueeze(0)
@@ -34,7 +34,7 @@ class PrioritizeExperienceReplay:
         self.next_idx = 0
         self.size = 0
 
-    def add(self, obs, action, reward, next_obs, done):
+    def push(self, obs, action, next_obs, reward):
 
         idx = self.next_idx
 
@@ -42,7 +42,7 @@ class PrioritizeExperienceReplay:
         self.data['action'][idx] = action
         self.data['reward'][idx] = reward
         self.data['next_obs'][idx] = next_obs
-        self.data['done'][idx] = done
+        # self.data['done'][idx] = done
 
         self.next_idx = (idx + 1) % self.capacity
         self.size = min(self.capacity, self.size + 1)
