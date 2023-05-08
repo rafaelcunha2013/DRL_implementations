@@ -13,10 +13,10 @@ class PrioritizeExperienceReplay:
         self.max_priority = 1
 
         self.data = {
-            'obs': np.zeros(shape=(capacity, 4, 84, 84), dtype=np.uint8),
+            'obs': np.zeros(shape=(capacity, env.observation_space.shape[0]), dtype=np.float32),
             'action': np.zeros(shape=capacity, dtype=np.int32),
             'reward': np.zeros(shape=capacity, dtype=np.float32),
-            'next_obs': np.zeros(shape=(capacity, 4, 84, 84), dtype=np.uint8)#,
+            'next_obs': np.zeros(shape=(capacity, env.observation_space.shape[0]), dtype=np.float32)#,
             #'done': np.zeros(shape=capacity, dtype=np.bool)
         }
 
@@ -101,7 +101,7 @@ class PrioritizeExperienceReplay:
             idx = samples['indexes'][i]
             prob = self.priority_sum[idx + self.capacity] / self._sum()
             weight = (prob * self.size) ** (-beta)
-            samples['weights'][i] / weight / max_weight
+            samples['weights'][i] = weight / max_weight
 
         for k, v in self.data.items():
             samples[k] = v[samples['indexes']]
@@ -119,6 +119,9 @@ class PrioritizeExperienceReplay:
 
     def is_full(self):
         return self.capacity == self.size
+    
+    def __len__(self):
+        return self.size
 
 
 

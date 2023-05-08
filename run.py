@@ -42,20 +42,20 @@ if system_name == 'Linux':
 
 
 else:
-    alg = ['dqn']
+    alg = ['ddqn']
     num_episodes = 10
     num_trial = 1
     env_name = 'four-room-multiagent-v0'
-    num_agents = 2 
+    num_agents = 1 
     folder = 'logs5'
     nn = ['linear'] 
     capacity = 10_000
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
-    buffer = ['simple'] # or ['simple'] or ['per']
-    agent_name = "AgentAtTime" # 'Agent' # or "AgentAtTime"
-    BATCH_SIZE = 32
+    buffer = ['per'] # or ['simple'] or ['per']
+    agent_name = "Agent" # 'Agent' # or "AgentAtTime"
+    BATCH_SIZE = 4
     job_name = '02'
 
 for i in range(num_trial):
