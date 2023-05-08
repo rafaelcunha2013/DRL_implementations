@@ -112,11 +112,11 @@ class Agent:
 
         self.eps_threshold = None
         self.evaluate_flag = False       
-        self.n_actions = int(env.action_space.n ** (1/n_agents))
+        self.n_actions = int(self.env.action_space.n ** (1/n_agents))
 
         # n_actions = env.get_num_actions() #env.action_space.n
-        n_actions = env.action_space.n
-        self.state, _ = env.reset()
+        n_actions = self.env.action_space.n
+        self.state, _ = self.env.reset()
         self.n_observations = len(self.state)  # Why don't get env.observation_space.box (Generalize to discrete and continuous environmen)
 
         if 'linear' in nn:
@@ -131,11 +131,10 @@ class Agent:
 
         if 'per' in self.buffer:
             alpha = 0.7
-            self.memory = PrioritizeExperienceReplay(capacity, alpha, env)
+            self.memory = PrioritizeExperienceReplay(capacity, alpha, self.env)
 
         elif 'simple' in self.buffer:
             self.memory = ReplayMemory(capacity=capacity)
-        self.memory = ReplayMemory(capacity=capacity)
 
         # If gpu is to be used
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
@@ -169,7 +168,14 @@ class Agent:
     def optimize_model(self):
         if len(self.memory) < self.batch_size:
             return
-        transitions = self.memory.sample(self.batch_size)
+        
+        if 'per' in self.buffer:
+            # I need to understand what is a good beta
+            samples = self.memory.sample(self.batch_size, beta=0.8)
+            transitions = samples['weights']
+            indexes = samples['indexes']
+        elif 'simple' in self.buffer:
+            transitions = self.memory.sample(self.batch_size)
         # Converts batch-array of Transitions to Transitons of batch-arrays
         batch = Transition(*zip(*transitions))
 
@@ -211,6 +217,11 @@ class Agent:
         # In-place gradient clipping
         torch.nn.utils.clip_grad_value_(self.policy_net.parameters(), 100)
         self.optimizer.step()
+
+        # Update priorities with TD_error
+        if 'per' in self.buffer:
+            priorities = (expected_state_action_values.unsqueeze(1) - state_action_values) + 0.001 
+            self.memory.update_priorities(indexes, priorities)
         
 
     def train(self, num_episodes):

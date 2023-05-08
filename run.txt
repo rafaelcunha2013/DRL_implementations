@@ -31,6 +31,9 @@ ssh -L 6006:localhost:6006 -X p285087@interactive1.hb.hpc.rug.nl
 Accessing the working folder
 cd $HOME/studies/DRL_implementations
 
+Activating virtual environment
+source $HOME/.envs/DRL_lab/bin/activate
+
 Deleting desktop.ini files in git.bash terminal on windows
 find . -type f -name "desktop.ini" -exec rm {} \; 
 
@@ -42,9 +45,12 @@ tensorboard --logdir="/home4/p285087/data/four_room"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2/04_dqn_AgentAtTime_05_04__13_07_10__41"
+tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2/05_dqn_AgentAtTime_05_04__14_23_06__61"
+tensorboard --logdir_spec="run1:/home4/p285087/data/four_room/logs_habrok_2/05_dqn_AgentAtTime_05_04__14_23_06__61","run2:/home4/p285087/data/four_room/logs_habrok_2/06_dqn_AgentAtTime_05_04__14_25_52__18","run3:/home4/p285087/data/four_room/logs_habrok_2/07_dqn_Agent_05_04__14_26_52__63"
 
-Activating virtual environment
-source $HOME/.envs/DRL_lab/bin/activate
+
+
+
 
 Example usage of run2.sh
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256
@@ -62,3 +68,14 @@ sbatch --job-name=03 --time=40:00:00 --mem=5G run2.sh dqn 100_000 1 four-room-mu
 sbatch --job-name=01 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128
 sbatch --job-name=01 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128 01
 sbatch --job-name=04 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 128 04
+sbatch --job-name=05 --time=40:00:00 --mem=10G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 128 05
+sbatch --job-name=06 --time=40:00:00 --mem=15G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128 06
+sbatch --job-name=07 --time=40:00:00 --mem=5G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple Agent 128 07
+
+sbatch --job-name=08 --time=40:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 128 08
+sbatch --job-name=09 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 128 09
+sbatch --job-name=10 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple Agent 128 10
+
+sbatch --job-name=11 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 256 11
+sbatch --job-name=12 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 256 12
+sbatch --job-name=13 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple Agent 256 13
