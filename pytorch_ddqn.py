@@ -21,6 +21,8 @@ import torch.optim as optim
 import torch.nn.functional as F
 from torch.utils.tensorboard import SummaryWriter
 
+from replay_buffer import PrioritizeExperienceReplay
+
 
 ###########################
 # Replay Memory
@@ -94,7 +96,8 @@ class CNN(nn.Module):
 class Agent:
 
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=1):
+                 lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=1,
+                 buffer=['simple']):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -125,6 +128,13 @@ class Agent:
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=lr, amsgrad=True)
+
+        if 'per' in self.buffer:
+            alpha = 0.7
+            self.memory = PrioritizeExperienceReplay(capacity, alpha, env)
+
+        elif 'simple' in self.buffer:
+            self.memory = ReplayMemory(capacity=capacity)
         self.memory = ReplayMemory(capacity=capacity)
 
         # If gpu is to be used
