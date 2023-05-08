@@ -108,6 +108,7 @@ class Agent:
         self.alg = alg
         self.log_dir = log_dir
         self.n_agents = n_agents
+        self.buffer = buffer
 
 
         self.eps_threshold = None
@@ -172,20 +173,36 @@ class Agent:
         if 'per' in self.buffer:
             # I need to understand what is a good beta
             samples = self.memory.sample(self.batch_size, beta=0.8)
+
+            state_batch = torch.tensor(samples['obs'], dtype=torch.float32, device=self.device)
+            action_batch = torch.tensor(samples['action'], device=self.device, dtype=torch.long).unsqueeze(1)
+            reward_batch = torch.tensor(samples['reward'], device=self.device)
+            next_state_batch = torch.tensor(samples['next_obs'], dtype=torch.float32, device=self.device)
+
+
+            # state_batch = torch.from_numpy(samples['obs'])
+            # action_batch = torch.from_numpy(samples['action']).unsqueeze(1)
+            # reward_batch = torch.from_numpy(samples['reward']).unsqueeze(1)
+            # next_state_batch = torch.from_numpy(samples['next_obs'])
+
+            non_final_mask = torch.tensor([s is not None for s in next_state_batch])
+            non_final_next_states = torch.cat([s for s in next_state_batch.unsqueeze(1) if s is not None])
+            
             transitions = samples['weights']
             indexes = samples['indexes']
+
         elif 'simple' in self.buffer:
             transitions = self.memory.sample(self.batch_size)
-        # Converts batch-array of Transitions to Transitons of batch-arrays
-        batch = Transition(*zip(*transitions))
+            # Converts batch-array of Transitions to Transitons of batch-arrays
+            batch = Transition(*zip(*transitions))
 
-        # Compute a mask of non-final states and concatenate the batch elements
-        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
-        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+            # Compute a mask of non-final states and concatenate the batch elements
+            non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
+            non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
-        state_batch = torch.cat(batch.state)
-        action_batch = torch.cat(batch.action)
-        reward_batch = torch.cat(batch.reward)
+            state_batch = torch.cat(batch.state)
+            action_batch = torch.cat(batch.action)
+            reward_batch = torch.cat(batch.reward)
 
 
         # --- Core of the DQN algorithm -------
