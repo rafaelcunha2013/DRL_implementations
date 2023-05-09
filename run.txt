@@ -94,3 +94,7 @@ sbatch --job-name=19 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-m
 sbatch --job-name=20 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 20
 sbatch --job-name=21 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 21
 sbatch --job-name=22 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 22
+
+sbatch --job-name=23 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 23
+sbatch --job-name=24 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 24
+sbatch --job-name=25 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 25
