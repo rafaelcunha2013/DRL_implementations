@@ -289,8 +289,7 @@ class Agent:
                     self.cum_reward.append(cum_reward)
                     self.cum_discounted_reward.append(cum_discounted_reward)
 
-                    # Saving and evaluating the model
-                    self.save_evaluate_model(i_episode)
+                    
                     # if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
                     #     self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
                     #     torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
@@ -304,6 +303,9 @@ class Agent:
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
                     self.writer.add_scalar('epsilon', self.eps_threshold, i_episode)
+
+                    # Saving and evaluating the model
+                    self.save_evaluate_model(i_episode)
                     break
         self.writer.close()
         
@@ -540,8 +542,8 @@ class AgentOneAtTime(Agent):
                     self.cum_reward.append(cum_reward)
                     self.cum_discounted_reward.append(cum_discounted_reward)
 
-                    # Saving and evaluating the model
-                    self.save_evaluate_model(i_episode)
+                    # # Saving and evaluating the model
+                    # self.save_evaluate_model(i_episode)
 
                     for i in range(self.n_agents):
                         self.writer.add_scalar(f'loss/loss{i}', loss_mean[i], i_episode) 
@@ -549,6 +551,9 @@ class AgentOneAtTime(Agent):
                     self.writer.add_scalar('reward', cum_reward, i_episode)
                     self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
                     self.writer.add_scalar('epsilon', self.eps_threshold, i_episode)
+
+                    # Saving and evaluating the model
+                    self.save_evaluate_model(i_episode)
                     break
         self.writer.close()
 
