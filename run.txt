@@ -48,7 +48,10 @@ tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2/04_dqn_AgentAt
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok_2/05_dqn_AgentAtTime_05_04__14_23_06__61"
 tensorboard --logdir_spec="run1:/home4/p285087/data/four_room/logs_habrok_2/05_dqn_AgentAtTime_05_04__14_23_06__61","run2:/home4/p285087/data/four_room/logs_habrok_2/06_dqn_AgentAtTime_05_04__14_25_52__18","run3:/home4/p285087/data/four_room/logs_habrok_2/07_dqn_Agent_05_04__14_26_52__63"
 
+tensorboard --logdir_spec="run14:/home4/p285087/data/four_room/logs_habrok_1/14_ddqn_Agent_05_08__18_10_25__59","run15:/home4/p285087/data/four_room/logs_habrok_1/15_ddqn_Agent_05_08__18_10_25__59"
+14_ddqn_Agent_05_08__18_10_25__59
 
+tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1"
 
 
 
@@ -79,3 +82,15 @@ sbatch --job-name=10 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-m
 sbatch --job-name=11 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple AgentAtTime 256 11
 sbatch --job-name=12 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 100_000 256 10_000 20_000 simple AgentAtTime 256 12
 sbatch --job-name=13 --time=40:00:00 --mem=5G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_habrok 10_000 256 10_000 20_000 simple Agent 256 13
+
+sbatch --job-name=14 --time=20:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000 20_000 per Agent 128 14
+sbatch --job-name=15 --time=20:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000 20_000 simple Agent 128 15
+sbatch --job-name=16 --time=20:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_habrok 100_000 256 10_000 20_000 simple Agent 128 16
+
+sbatch --job-name=17 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 17
+sbatch --job-name=18 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 18
+sbatch --job-name=19 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 32 19
+
+sbatch --job-name=20 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 20
+sbatch --job-name=21 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 21
+sbatch --job-name=22 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 22
