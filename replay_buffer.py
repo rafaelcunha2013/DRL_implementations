@@ -99,12 +99,12 @@ class PrioritizeExperienceReplay:
             samples['indexes'][i] = idx
 
         prob_min = self._min() / self._sum()
-        max_weight = (prob_min * self.size) ** (-beta)
+        max_weight = (prob_min * self.size) ** (-self.beta)
 
         for i in range(batch_size):
             idx = samples['indexes'][i]
             prob = self.priority_sum[idx + self.capacity] / self._sum()
-            weight = (prob * self.size) ** (-beta)
+            weight = (prob * self.size) ** (-self.beta)
             samples['weights'][i] = weight / max_weight
 
         for k, v in self.data.items():
