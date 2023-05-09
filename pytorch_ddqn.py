@@ -162,7 +162,7 @@ class Agent:
                 # view(1, 1) --> Reshape a tensor to have torch.Size([1, 1]) instead of torch.Size([])
                 return self.policy_net(state).max(1)[1].view(1, 1)
         else:
-            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.long)
+            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.float32)
             # return torch.tensor([[np.random.randint(self.env.get_num_actions())]], device=self.device, dtype=torch.long)
    
     
