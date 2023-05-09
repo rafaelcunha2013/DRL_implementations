@@ -172,7 +172,7 @@ class Agent:
         
         if 'per' in self.buffer:
             # I need to understand what is a good beta
-            samples = self.memory.sample(self.batch_size, beta=0.8)
+            samples = self.memory.sample(self.batch_size)
 
             state_batch = torch.tensor(samples['obs'], dtype=torch.float32, device=self.device)
             action_batch = torch.tensor(samples['action'], device=self.device, dtype=torch.long).unsqueeze(1)
@@ -237,7 +237,7 @@ class Agent:
 
         # Update priorities with TD_error
         if 'per' in self.buffer:
-            priorities = (expected_state_action_values.unsqueeze(1) - state_action_values) + 0.001 
+            priorities = (expected_state_action_values.unsqueeze(1) - state_action_values).abs() + 1e-5 
             self.memory.update_priorities(indexes, priorities)
         
 
