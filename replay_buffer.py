@@ -8,6 +8,9 @@ class PrioritizeExperienceReplay:
         self.capacity = capacity
         self.alpha = alpha
 
+        self.beta = 0.4
+        self.beta_increment_per_sampling=0.001
+
         self.priority_sum = [0 for _ in range(2 * self.capacity)]
         self.priority_min = [float('inf') for _ in range(2 * self.capacity)]
         self.max_priority = 1
@@ -83,7 +86,8 @@ class PrioritizeExperienceReplay:
 
         return idx - self.capacity
     
-    def sample(self, batch_size, beta):
+    def sample(self, batch_size):
+        self.beta = np.min([1., self.beta + self.beta_increment_per_sampling])
         samples = {
             'weights': np.zeros(shape=batch_size, dtype=np.float32),
             'indexes': np.zeros(shape=batch_size, dtype=np.int32)
