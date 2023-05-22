@@ -22,12 +22,12 @@ for rewards in all_rewards:
 
     print(cum_reward)
 
-name = "logs_habrok_four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78.csv"
-df = pd.read_csv(name)
-# print(df.head())
-print(df['Value'].max())
+# name = "logs_habrok_four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78.csv"
+# df = pd.read_csv(name)
+# # print(df.head())
+# print(df['Value'].max())
 
-name = "logs_habrok_four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__80.csv"
-df = pd.read_csv(name)
-# print(df.head())
-print(df['Value'].max())
+# name = "logs_habrok_four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__80.csv"
+# df = pd.read_csv(name)
+# # print(df.head())
+# print(df['Value'].max())
