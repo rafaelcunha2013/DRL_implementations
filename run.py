@@ -92,7 +92,7 @@ for i in range(num_trial):
     # unique_id = datetime.now().strftime("%Y_%m_%d__%H_%M_%S__%f")[:-4]
     # name = f'{folder}_{num_agents}/{env_name}_{alg[0]}_{capacity}_run_{unique_id}'
     unique_id = datetime.now().strftime("%m_%d__%H_%M_%S__%f")[:-4]
-    name = f'{folder}_{num_agents}/{job_name}_{alg[0]}_{agent_name}_{unique_id}'
+    name = f'{folder}_{num_agents}/{job_name}/{job_name}_{alg[0]}_{agent_name}_{unique_id}'
     print(name)
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
