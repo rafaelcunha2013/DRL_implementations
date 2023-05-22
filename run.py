@@ -53,7 +53,7 @@ else:
     hid_dim = 256
     EPS_DECAY = 1000
     max_step_episode = 500
-    buffer = ['per'] # or ['simple'] or ['per']
+    buffer = ['simple'] # or ['simple'] or ['per']
     agent_name = "Agent" # 'Agent' # or "AgentAtTime"
     BATCH_SIZE = 4
     job_name = '02'
