@@ -30,6 +30,7 @@ ssh -L 6006:localhost:6006 -X p285087@interactive1.hb.hpc.rug.nl
 
 Accessing the working folder
 cd $HOME/studies/DRL_implementations
+cd $HOME/data/four_room/logs_Agent_1/26
 
 Activating virtual environment
 source $HOME/.envs/DRL_lab/bin/activate
@@ -52,8 +53,11 @@ tensorboard --logdir_spec="run14:/home4/p285087/data/four_room/logs_habrok_1/14_
 14_ddqn_Agent_05_08__18_10_25__59
 
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1"
+tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/25_ddqn_Agent_05_10__00_18_27__06"
+tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
+tensorboard --logdir_spec="26:/home4/p285087/data/four_room/logs_Agent_1/26","27:/home4/p285087/data/four_room/logs_Agent_1/27","28:/home4/p285087/data/four_room/logs_Agent_1/28","29:/home4/p285087/data/four_room/logs_Agent_1/29"
 
-
+tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/18_ddqn_Agent_05_09__11_57_46__68"
 
 Example usage of run2.sh
 sbatch --job-name=4room --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_habrok 10_000 256
@@ -91,10 +95,20 @@ sbatch --job-name=17 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-m
 sbatch --job-name=18 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 18
 sbatch --job-name=19 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 32 19
 
-sbatch --job-name=20 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 20
-sbatch --job-name=21 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 21
-sbatch --job-name=22 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 22
+sbatch --job-name=20 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 20  # TD_error without absolute
+sbatch --job-name=21 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 21   # TD_error without absolute
+sbatch --job-name=22 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 22   # TD_error without absolute
 
 sbatch --job-name=23 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 128 23
 sbatch --job-name=24 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 64 24
 sbatch --job-name=25 --time=10:00:00 --mem=10G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 per Agent 32 25
+
+sbatch --job-name=26 --time=10:00:00 --mem=20G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 26
+
+sbatch --job-name=27 --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 10_000 256 10_000 5_000 simple Agent 128 27
+sbatch --job-name=28 --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 10_000 256 10_000 5_000 simple Agent 64 28
+sbatch --job-name=29 --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-multiagent-v0 1 logs_Agent 10_000 256 10_000 5_000 simple Agent 32 29
+
+sbatch --job-name=30 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 30
+sbatch --job-name=31 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 256 31
+sbatch --job-name=32 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 1_000_000 256 10_000 5_000 simple Agent 64 32
