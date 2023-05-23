@@ -61,6 +61,36 @@ class Network(nn.Module):
         x = F.relu(self.layer2(x))
         return self.layer3(x)
 
+#####################################
+# Dueling Neural Network
+#####################################
+class DuelNetwork(nn.Module):
+    def __init__(self, n_observations, n_actions, hid_dim):
+        super(DuelNetwork, self).__init__()
+
+        self.feature_layer = nn.Linear(n_observations, hid_dim)
+
+        # Action value function stream
+        self.advantage_layer1 = nn.Linear(hid_dim, hid_dim)
+        self.advantage_layer2 = nn.Linear(hid_dim, n_actions)
+
+        # State value function stream
+        self.value_layer1 = nn.Linear(hid_dim, hid_dim)
+        self.value_layer2 = nn.Linear(hid_dim, 1)
+
+    
+    def forward(self, x):
+        x = F.relu(self.feature_layer(x))
+
+        advantage = F.relu(self.advantage_layer1(x))
+        advantage = self.advantage_layer2(advantage)
+
+        value = F.relu(self.value_layer1(x))
+        value = self.value_layer2(value)
+
+        # Recombine streams
+        return value + advantage - advantage.mean()
+
 
 ###########################
 # Convolutional Neural Network
@@ -125,7 +155,11 @@ class Agent:
             self.target_net = Network(self.n_observations, n_actions, hid_dim)
         elif 'CNN' in nn:
             self.policy_net = CNN(self.state.shape[-1], n_actions)
-            self.target_net = CNN(self.state.shape[-1], n_actions)           
+            self.target_net = CNN(self.state.shape[-1], n_actions)  
+        elif 'duel' in nn:
+            self.policy_net = DuelNetwork(self.n_observations, n_actions, hid_dim)
+            self.target_net = DuelNetwork(self.n_observations, n_actions, hid_dim)
+
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
         self.optimizer = optim.AdamW(self.policy_net.parameters(), lr=lr, amsgrad=True)

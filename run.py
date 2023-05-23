@@ -30,7 +30,7 @@ if system_name == 'Linux':
     env_name = sys.argv[4]
     num_agents = int(sys.argv[5]) # Choose 1 or 2
     folder = sys.argv[6]
-    nn = ['linear'] 
+    # nn = ['linear'] 
     capacity = int(sys.argv[7])
     hid_dim = int(sys.argv[8])
     EPS_DECAY = int(sys.argv[9])
@@ -39,6 +39,7 @@ if system_name == 'Linux':
     agent_name = sys.argv[12]
     BATCH_SIZE = int(sys.argv[13])
     job_name = sys.argv[14]
+    nn = [sys.argv[15]]
 
 
 else:

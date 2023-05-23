@@ -112,3 +112,5 @@ sbatch --job-name=29 --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-mu
 sbatch --job-name=30 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 30
 sbatch --job-name=31 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 256 31
 sbatch --job-name=32 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 1_000_000 256 10_000 5_000 simple Agent 64 32
+
+sbatch --job-name=33 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 33 duel
