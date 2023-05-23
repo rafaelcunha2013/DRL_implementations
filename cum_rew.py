@@ -14,11 +14,15 @@ rewards = [(8, 0.5), (16, 1), (28, 0.5), (24, 1), (38, 1), (41, 0.5), (46, 1), (
 all_rewards.append(rewards)
 rewards = [(8, 0.5), (16, 1), (12, 0.5), (56, 1), (24, 1), (27, 0.5), (32, 1), (37, 0.5), (72, 1)]
 all_rewards.append(rewards)
+rewards = [(8, 0.5), (12, 0.5), (16, 1), (24, 1), (27, 0.5), (32, 1), (37, 0.5), (56, 1), (72, 1)]
+all_rewards.append(rewards)
+
+
 
 for rewards in all_rewards:
     cum_reward = 0
     for rw_pair in rewards:
-        cum_reward += (gamma ** (rw_pair[0]-1)) * rw_pair[1]
+        cum_reward += (gamma ** (rw_pair[0])) * rw_pair[1]
 
     print(cum_reward)
 
