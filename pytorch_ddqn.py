@@ -194,10 +194,13 @@ class Agent:
                 # t.max(1) --> Largest column value of each row.
                 # [1] Second column on max --> Index where max element was found, thus we pick the action that maximizes reward
                 # view(1, 1) --> Reshape a tensor to have torch.Size([1, 1]) instead of torch.Size([])
-                return self.policy_net(state).max(1)[1].view(1, 1)
+                state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+                # return self.policy_net(state).max(1)[1].view(1, 1)
+                return self.policy_net(state).max(1)[1].view(1, 1).item()
         else:
             # return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.float32)
-            return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.int64)
+            # return torch.tensor([[self.env.action_space.sample()]], device=self.device, dtype=torch.int64)
+            return self.env.action_space.sample()
             # return torch.tensor([[np.random.randint(self.env.get_num_actions())]], device=self.device, dtype=torch.long)
    
     
@@ -283,22 +286,24 @@ class Agent:
         for i_episode in range(num_episodes):
             state, info = self.env.reset()
             # state = self.env.reset()
-            state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             loss_mean = 0
             cum_reward = 0
             cum_discounted_reward = 0
             cum_gamma = self.gamma
             for t in count():
                 action = self.select_action(state)
-                observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                # observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                observation, reward, terminated, truncated, _ = self.env.step(action)
                 # observation, reward, terminated = self.env.step(action.item())
                 cum_reward += reward
                 cum_discounted_reward += cum_gamma * reward
                 cum_gamma *= self.gamma
-                reward = torch.tensor([reward], device=self.device)
+                # reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
 
-                next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+                # next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+                next_state = None if terminated else observation
 
                 # Store the transition in memory
                 self.memory.push(state, action, next_state, reward)
