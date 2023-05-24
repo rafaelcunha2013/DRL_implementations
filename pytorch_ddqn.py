@@ -218,11 +218,6 @@ class Agent:
             next_state_batch = torch.tensor(samples['next_obs'], dtype=torch.float32, device=self.device)
 
 
-            # state_batch = torch.from_numpy(samples['obs'])
-            # action_batch = torch.from_numpy(samples['action']).unsqueeze(1)
-            # reward_batch = torch.from_numpy(samples['reward']).unsqueeze(1)
-            # next_state_batch = torch.from_numpy(samples['next_obs'])
-
             non_final_mask = torch.tensor([s is not None for s in next_state_batch])
             non_final_next_states = torch.cat([s for s in next_state_batch.unsqueeze(1) if s is not None])
             
@@ -233,6 +228,13 @@ class Agent:
             transitions = self.memory.sample(self.batch_size)
             # Converts batch-array of Transitions to Transitons of batch-arrays
             batch = Transition(*zip(*transitions))
+
+            # Convert to tensors
+            batch = Transition(state=torch.stack([torch.from_numpy(s) for s in batch.state]),
+                            action=torch.stack([torch.from_numpy(a) for a in batch.action]),
+                            next_state=torch.stack([torch.from_numpy(n) for n in batch.next_state]),
+                            reward=torch.stack([torch.from_numpy(r) for r in batch.reward]),
+                            )
 
             # Compute a mask of non-final states and concatenate the batch elements
             non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
