@@ -232,16 +232,10 @@ class Agent:
             state_batch = torch.tensor(np.array(batch.state), dtype=torch.float32, device=self.device)
             action_batch = torch.tensor(batch.action, dtype=torch.float32, device=self.device).view(-1, 1)
             reward_batch = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).view(-1, 1)
-            next_state_batch = torch.tensor(np.array(batch.next_state), dtype=torch.float32, device=self.device)
-
 
             # Compute a mask of non-final states and concatenate the batch elements
             non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
-            non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
-
-            # state_batch = torch.cat(batch.state)
-            # action_batch = torch.cat(batch.action)
-            # reward_batch = torch.cat(batch.reward)
+            non_final_next_states = torch.stack([torch.tensor(s, dtype=torch.float32, device=self.device) for s in batch.next_state if s is not None])
 
 
         # --- Core of the DQN algorithm -------
