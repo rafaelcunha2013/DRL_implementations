@@ -56,6 +56,7 @@ tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/25_ddqn_Agent_05_10__00_18_27__06"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
 tensorboard --logdir_spec="26:/home4/p285087/data/four_room/logs_Agent_1/26","27:/home4/p285087/data/four_room/logs_Agent_1/27","28:/home4/p285087/data/four_room/logs_Agent_1/28","29:/home4/p285087/data/four_room/logs_Agent_1/29"
+tensorboard --logdir_spec="30:/home4/p285087/data/four_room/logs_Agent_1/30","31:/home4/p285087/data/four_room/logs_Agent_1/31","32:/home4/p285087/data/four_room/logs_Agent_1/32","33:/home4/p285087/data/four_room/logs_Agent_1/33"
 
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/18_ddqn_Agent_05_09__11_57_46__68"
 
