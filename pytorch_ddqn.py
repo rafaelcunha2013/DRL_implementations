@@ -229,20 +229,19 @@ class Agent:
             # Converts batch-array of Transitions to Transitons of batch-arrays
             batch = Transition(*zip(*transitions))
 
-            # Convert to tensors
-            batch = Transition(state=torch.stack([torch.from_numpy(s) for s in batch.state]),
-                            action=torch.stack([torch.from_numpy(a) for a in batch.action]),
-                            next_state=torch.stack([torch.from_numpy(n) for n in batch.next_state]),
-                            reward=torch.stack([torch.from_numpy(r) for r in batch.reward]),
-                            )
+            state_batch = torch.tensor(np.array(batch.state), dtype=torch.float32, device=self.device)
+            action_batch = torch.tensor(batch.action, dtype=torch.float32, device=self.device).view(-1, 1)
+            reward_batch = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).view(-1, 1)
+            next_state_batch = torch.tensor(np.array(batch.next_state), dtype=torch.float32, device=self.device)
+
 
             # Compute a mask of non-final states and concatenate the batch elements
             non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
             non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
 
-            state_batch = torch.cat(batch.state)
-            action_batch = torch.cat(batch.action)
-            reward_batch = torch.cat(batch.reward)
+            # state_batch = torch.cat(batch.state)
+            # action_batch = torch.cat(batch.action)
+            # reward_batch = torch.cat(batch.reward)
 
 
         # --- Core of the DQN algorithm -------
