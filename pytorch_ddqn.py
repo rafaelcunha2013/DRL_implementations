@@ -230,7 +230,7 @@ class Agent:
             batch = Transition(*zip(*transitions))
 
             state_batch = torch.tensor(np.array(batch.state), dtype=torch.float32, device=self.device)
-            action_batch = torch.tensor(batch.action, dtype=torch.float32, device=self.device).view(-1, 1)
+            action_batch = torch.tensor(batch.action, dtype=torch.int64, device=self.device).view(-1, 1)
             reward_batch = torch.tensor(batch.reward, dtype=torch.float32, device=self.device).view(-1, 1)
 
             # Compute a mask of non-final states and concatenate the batch elements
@@ -254,12 +254,12 @@ class Agent:
                 next_state_values[non_final_mask] = self.target_net(non_final_next_states).gather(1, next_action_values).view(-1)
 
 
-        expected_state_action_values = (next_state_values * self.gamma) + reward_batch
+        expected_state_action_values = (next_state_values.view(-1, 1) * self.gamma) + reward_batch
         # --- Core of the DQN algorithm -------
 
         # Compute Huber loss
         criterion = nn.SmoothL1Loss()
-        self.loss = criterion(state_action_values, expected_state_action_values.unsqueeze(1))
+        self.loss = criterion(state_action_values, expected_state_action_values)
 
         # Optimize the model
         self.optimizer.zero_grad()
@@ -372,7 +372,7 @@ class Agent:
         for i_episode in range(num_episodes):
             state, info = self.env.reset()
             # state = self.env.reset()
-            state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
             cum_reward = 0
             cum_discounted_reward = 0
             cum_gamma = self.gamma
@@ -380,15 +380,15 @@ class Agent:
                 action = self.select_action(state)
                 # with torch.no_grad():
                 #     action = model(state).max(1)[1].view(1, 1)
-                observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                observation, reward, terminated, truncated, _ = self.env.step(action)
                 # observation, reward, terminated = self.env.step(action.item())
                 cum_reward += reward
                 cum_discounted_reward += cum_gamma * reward
                 cum_gamma *= self.gamma
-                reward = torch.tensor([reward], device=self.device)
+                # reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
 
-                next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+                next_state = None if terminated else observation #torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
 
                 # Move to the next state
                 state = next_state
