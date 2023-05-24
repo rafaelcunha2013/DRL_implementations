@@ -49,7 +49,7 @@ else:
     env_name = 'four-room-multiagent-v0'
     num_agents = 1 
     folder = 'logs5'
-    nn = ['linear'] 
+    nn = ['linear']  # ['duel']
     capacity = 10_000
     hid_dim = 256
     EPS_DECAY = 1000
