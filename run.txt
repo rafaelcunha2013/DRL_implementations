@@ -24,6 +24,7 @@ ssh -X p285087@interactive2.hb.hpc.rug.nl
 
 How to set up a ssh tunnel
 ssh -L 6006:localhost:6006 p285087@interactive2.hb.hpc.rug.nl
+ssh -L 6008:localhost:6008 p285087@interactive2.hb.hpc.rug.nl
 
 ssh -L 6006:localhost:6006 -X p285087@interactive2.hb.hpc.rug.nl
 ssh -L 6006:localhost:6006 -X p285087@interactive1.hb.hpc.rug.nl
@@ -57,6 +58,7 @@ tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/25_ddqn_Agent_0
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
 tensorboard --logdir_spec="26:/home4/p285087/data/four_room/logs_Agent_1/26","27:/home4/p285087/data/four_room/logs_Agent_1/27","28:/home4/p285087/data/four_room/logs_Agent_1/28","29:/home4/p285087/data/four_room/logs_Agent_1/29"
 tensorboard --logdir_spec="30:/home4/p285087/data/four_room/logs_Agent_1/30","31:/home4/p285087/data/four_room/logs_Agent_1/31","32:/home4/p285087/data/four_room/logs_Agent_1/32","33:/home4/p285087/data/four_room/logs_Agent_1/33"
+tensorboard --logdir_spec="33:/home4/p285087/data/four_room/logs_Agent_1/33","34:/home4/p285087/data/four_room/logs_Agent_1/34","35:/home4/p285087/data/four_room/logs_Agent_1/35","32:/home4/p285087/data/four_room/logs_Agent_1/32" --port 6008
 
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/18_ddqn_Agent_05_09__11_57_46__68"
 
@@ -112,6 +114,12 @@ sbatch --job-name=29 --time=10:00:00 --mem=5G run2.sh ddqn 50_000 1 four-room-mu
 
 sbatch --job-name=30 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 30
 sbatch --job-name=31 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 256 31
-sbatch --job-name=32 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 1_000_000 256 10_000 5_000 simple Agent 64 32
+sbatch --job-name=32 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 1_000_000 256 10_000 5_000 simple Agent 64 32 linear
 
 sbatch --job-name=33 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 33 duel
+sbatch --job-name=34 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 34 duel
+sbatch --job-name=35 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 32 35 duel
+
+sbatch --job-name=36 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 128 36 duel hard
+sbatch --job-name=37 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 37 duel hard
+sbatch --job-name=38 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 32 38 duel hard

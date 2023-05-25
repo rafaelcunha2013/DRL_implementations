@@ -127,7 +127,7 @@ class Agent:
 
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
                  lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=1,
-                 buffer=['simple']):
+                 buffer=['simple'], update_type=['soft'], update_interval=1_000):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -139,6 +139,8 @@ class Agent:
         self.log_dir = log_dir
         self.n_agents = n_agents
         self.buffer = buffer
+        self.update_type = update_type
+        self.update_interval = update_interval
 
 
         self.eps_threshold = None
@@ -175,6 +177,7 @@ class Agent:
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 
         self.steps_done = 0
+        self.step = 0
 
         # Variables to collect statistics
         self.writer = SummaryWriter(log_dir)
@@ -287,6 +290,7 @@ class Agent:
             cum_discounted_reward = 0
             cum_gamma = self.gamma
             for t in count():
+                self.step += 1
                 action = self.select_action(state)
                 # observation, reward, terminated, truncated, _ = self.env.step(action.item())
                 observation, reward, terminated, truncated, _ = self.env.step(action)
@@ -353,7 +357,13 @@ class Agent:
         return target_net_state_dict
 
     def update_network(self):
-        self.target_net.load_state_dict(self.soft_update(self.policy_net.state_dict(), self.target_net.state_dict()))
+        if 'soft' in self.update_type:
+            self.target_net.load_state_dict(self.soft_update(self.policy_net.state_dict(), self.target_net.state_dict()))
+        elif 'hard' in self.update_type:
+            if self.step % self.update_interval == 0:
+                self.target_net.load_state_dict(self.policy_net.state_dict())
+
+
 
     def save_evaluate_model(self, i_episode):
         # Saving and evaluating the model

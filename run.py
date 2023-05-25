@@ -40,6 +40,8 @@ if system_name == 'Linux':
     BATCH_SIZE = int(sys.argv[13])
     job_name = sys.argv[14]
     nn = [sys.argv[15]]
+    update_type = [sys.argv[16]]
+    
 
 
 else:
@@ -58,6 +60,9 @@ else:
     agent_name = "Agent" # 'Agent' # or "AgentAtTime"
     BATCH_SIZE = 4
     job_name = '02'
+    nn = ['linear']
+    update_type = ['hard']
+    
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -104,7 +109,7 @@ for i in range(num_trial):
     if 'per' in buffer:
         my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
     else:
-        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn)
+        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type)
 
 
     my_dqn.train(num_episodes)
