@@ -127,7 +127,7 @@ class Agent:
 
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
                  lr, hid_dim=128, capacity=10_000, alg=['ddqn'], log_dir='logs/', nn=['CNN'], n_agents=1,
-                 buffer=['simple'], update_type=['soft'], update_interval=1_000):
+                 buffer=['simple'], update_type=['soft'], update_interval=1_000, data=['normal']):
         self.env = env
         self.batch_size = batch_size
         self.gamma = gamma
@@ -141,6 +141,7 @@ class Agent:
         self.buffer = buffer
         self.update_type = update_type
         self.update_interval = update_interval
+        self.data = data
 
 
         self.eps_threshold = None
@@ -305,7 +306,14 @@ class Agent:
                 next_state = None if terminated else observation
 
                 # Store the transition in memory
-                self.memory.push(state, action, next_state, reward)
+                if 'normal' in self.data:
+                    self.memory.push(state, action, next_state, reward)
+                elif 'smart' in self.data:
+                    if reward != 0.0:
+                        self.memory.push(state, action, next_state, reward)
+                    elif random.random() > 0.75:
+                        self.memory.push(state, action, next_state, reward)
+
 
                 # Move to the next state
                 state = next_state
