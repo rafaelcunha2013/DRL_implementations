@@ -41,6 +41,7 @@ if system_name == 'Linux':
     job_name = sys.argv[14]
     nn = [sys.argv[15]]
     update_type = [sys.argv[16]]
+    data = [sys.argv[17]]
     
 
 
@@ -62,7 +63,7 @@ else:
     job_name = '02'
     nn = ['linear']
     update_type = ['hard']
-    
+    data = ['smart']
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -109,7 +110,7 @@ for i in range(num_trial):
     if 'per' in buffer:
         my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
     else:
-        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type)
+        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
 
 
     my_dqn.train(num_episodes)
