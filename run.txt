@@ -128,3 +128,5 @@ sbatch --job-name=38 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-
 sbatch --job-name=39 --time=20:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 39 duel soft
 sbatch --job-name=40 --time=20:00:00 --mem=10G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 40 linear soft
 sbatch --job-name=41 --time=20:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 41 linear hard
+
+sbatch --job-name=42 --time=20:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 42 linear hard smart
