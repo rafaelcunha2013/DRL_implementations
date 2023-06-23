@@ -336,6 +336,8 @@ class Agent:
                     self.cum_reward.append(cum_reward)
                     self.cum_discounted_reward.append(cum_discounted_reward)
 
+
+
                     
                     # if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
                     #     self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
@@ -373,11 +375,11 @@ class Agent:
 
 
 
-    def save_evaluate_model(self, i_episode):
+    def save_evaluate_model(self, i_episode, name='my_model'):
         # Saving and evaluating the model
         if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
             self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
-            torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
+            torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, f'{name}.pth'))
             self.evaluate(50, i_episode, self.policy_net)
         if i_episode % 1000 == 0:
             self.evaluate(50, i_episode, self.policy_net)
