@@ -85,6 +85,15 @@ for i in range(num_trial):
                     video=False,
                     given_initial_position=given_initial_position,
                     initial_position=initial_position)
+    
+    env_agent = gym.make(env_name,
+                    render_mode=render_mode,
+                    max_episode_steps=max_step_episode,
+                    random_initial_position=random_initial_position,
+                    max_num_agents=1,
+                    video=False,
+                    given_initial_position=given_initial_position,
+                    initial_position=initial_position)
 
 
     # Hyperparameters
@@ -110,17 +119,17 @@ for i in range(num_trial):
     agent_classes = {'Agent': Agent, "AgentAtTime": AgentOneAtTime}
     my_agent = agent_classes[agent_name]
 
-    if 'per' in buffer:
-        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
-    else:
-        my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
+    # if 'per' in buffer:
+    #     my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
+    # else:
+    #     my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
 
 
     # my_dqn.train(num_episodes)
 
 
-    agent1 = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
-    agent2 = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)   
+    agent1 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)
+    agent2 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)   
     # agents = [agent1, agent2]
 
     train(env, num_episodes, agent1, agent2)

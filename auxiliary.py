@@ -15,8 +15,10 @@ def train(env, num_episodes, agent1, agent2):
             agent1.step += 1
             agent2.step += 1
 
-            action1 = agent1.select_action(state)
-            action2 = agent2.select_action(state)
+            state1 = np.concatenate((state[0:2], state[4:]))
+            state2 = state[2:]
+            action1 = agent1.select_action(state1)
+            action2 = agent2.select_action(state2)
             action = action1 + 4 * action2
 
             observation, reward, terminated, truncated, _ = env.step(action)
@@ -27,9 +29,12 @@ def train(env, num_episodes, agent1, agent2):
             done = terminated or truncated
             next_state = None if terminated else observation
 
+            next_state1 = None if terminated else np.concatenate((observation[0:2], observation[4:]))
+            next_state2 = None if terminated else observation[2:]           
+
             # Store the transition in memory
-            agent1.store_transition(state, action1, next_state, reward)
-            agent2.store_transition(state, action2, next_state, reward)
+            agent1.store_transition(state1, action1, next_state1, reward)
+            agent2.store_transition(state2, action2, next_state2, reward)
 
             # Move to the next state
             state = next_state
@@ -78,8 +83,11 @@ def evaluate(num_episodes, episode_number, env, agent1, agent2):
         cum_discounted_reward = 0
         cum_gamma = agent1.gamma
         for t in count():
-            action1 = agent1.select_action(state)
-            action2 = agent2.select_action(state)
+            state1 = np.concatenate((state[0:2], state[4:]))
+            state2 = state[2:]
+
+            action1 = agent1.select_action(state1)
+            action2 = agent2.select_action(state2)
             action = action1 + 4 * action2
 
             observation, reward, terminated, truncated, _ = env.step(action)

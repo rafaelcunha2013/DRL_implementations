@@ -154,14 +154,14 @@ class Agent:
         self.n_observations = len(self.state)  # Why don't get env.observation_space.box (Generalize to discrete and continuous environmen)
 
         if 'linear' in nn:
-            self.policy_net = Network(self.n_observations, self.n_actions, hid_dim)
-            self.target_net = Network(self.n_observations, self.n_actions, hid_dim)
+            self.policy_net = Network(self.n_observations, n_actions, hid_dim)
+            self.target_net = Network(self.n_observations, n_actions, hid_dim)
         elif 'CNN' in nn:
-            self.policy_net = CNN(self.state.shape[-1], self.n_actions)
-            self.target_net = CNN(self.state.shape[-1], self.n_actions)  
+            self.policy_net = CNN(self.state.shape[-1], n_actions)
+            self.target_net = CNN(self.state.shape[-1], n_actions)  
         elif 'duel' in nn:
-            self.policy_net = DuelNetwork(self.n_observations, self.n_actions, hid_dim)
-            self.target_net = DuelNetwork(self.n_observations, self.n_actions, hid_dim)
+            self.policy_net = DuelNetwork(self.n_observations, n_actions, hid_dim)
+            self.target_net = DuelNetwork(self.n_observations, n_actions, hid_dim)
 
         self.target_net.load_state_dict(self.policy_net.state_dict())
 
