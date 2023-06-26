@@ -3,11 +3,14 @@ import gym
 import gym_sf
 
 from pytorch_ddqn import Agent, AgentOneAtTime
+from auxiliary import train
 # from pytorch_ddqn_per import Agent
 
 import platform
 import sys
 from datetime import datetime
+
+
 
 
 """
@@ -50,7 +53,7 @@ else:
     num_episodes = 10
     num_trial = 1
     env_name = 'four-room-multiagent-v0'
-    num_agents = 1 
+    num_agents = 2 
     folder = 'logs5'
     nn = ['linear']  # ['duel']
     capacity = 10_000
@@ -63,7 +66,7 @@ else:
     job_name = '02'
     nn = ['linear']
     update_type = ['hard']
-    data = ['smart']
+    data = ['normal'] # or ['smart']
 
 for i in range(num_trial):
     # env_name = 'CartPole-v1'
@@ -113,4 +116,14 @@ for i in range(num_trial):
         my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
 
 
-    my_dqn.train(num_episodes)
+    # my_dqn.train(num_episodes)
+
+
+    agent1 = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
+    agent2 = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)   
+    # agents = [agent1, agent2]
+
+    train(env, num_episodes, agent1, agent2)
+
+
+

@@ -279,41 +279,28 @@ class Agent:
         
 
     def train(self, num_episodes):
-        if torch.cuda.is_available():
-            num_episodes *= 10
-
         for i_episode in range(num_episodes):
             state, info = self.env.reset()
-            # state = self.env.reset()
-            # state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            parameters = dict()
+
             loss_mean = 0
             cum_reward = 0
             cum_discounted_reward = 0
             cum_gamma = self.gamma
             for t in count():
                 self.step += 1
+
                 action = self.select_action(state)
-                # observation, reward, terminated, truncated, _ = self.env.step(action.item())
                 observation, reward, terminated, truncated, _ = self.env.step(action)
-                # observation, reward, terminated = self.env.step(action.item())
+
                 cum_reward += reward
                 cum_discounted_reward += cum_gamma * reward
                 cum_gamma *= self.gamma
-                # reward = torch.tensor([reward], device=self.device)
                 done = terminated or truncated
-
-                # next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
                 next_state = None if terminated else observation
 
                 # Store the transition in memory
-                if 'normal' in self.data:
-                    self.memory.push(state, action, next_state, reward)
-                elif 'smart' in self.data:
-                    if reward != 0.0:
-                        self.memory.push(state, action, next_state, reward)
-                    elif random.random() > 0.75:
-                        self.memory.push(state, action, next_state, reward)
-
+                self.store_transition(state, action, next_state, reward)
 
                 # Move to the next state
                 state = next_state
@@ -321,43 +308,44 @@ class Agent:
                 # Perform one step of the optimization (on the policy network)
                 self.optimize_model()
                 loss_mean += (self.loss.item() - loss_mean) / (t + 1)
-
-                # Should I update the model after every single step?
-                # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
                 self.update_network()
-                # target_net_state_dict = self.target_net.state_dict()
-                # policy_net_state_dict = self.policy_net.state_dict()
-                # for key in policy_net_state_dict:
-                #     target_net_state_dict[key] = policy_net_state_dict[key] * self.tau + target_net_state_dict[key] * (1 - self.tau)
-                # self.target_net.load_state_dict(target_net_state_dict)
 
                 if done:
                     self.steps_done += 1
-                    self.cum_reward.append(cum_reward)
-                    self.cum_discounted_reward.append(cum_discounted_reward)
-
-
-
+                    parameters = {
+                        'loss': loss_mean,
+                        'episode_len': t + 1,
+                        'cum_reward': cum_reward,
+                        'disc_reward': cum_discounted_reward,
+                        'i_episode': i_episode
+                        }
                     
-                    # if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
-                    #     self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
-                    #     torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, 'my_model.pth'))
-                    #     self.evaluate(50, i_episode, self.policy_net)
-                    # if i_episode % 1000 == 0:
-                    #     self.evaluate(50, i_episode, self.policy_net)
-
-
-                    self.writer.add_scalar('loss', loss_mean, i_episode) 
-                    self.writer.add_scalar('episode_len', t+1, i_episode)
-                    self.writer.add_scalar('reward', cum_reward, i_episode)
-                    self.writer.add_scalar('disc_reward', cum_discounted_reward, i_episode)
-                    self.writer.add_scalar('epsilon', self.eps_threshold, i_episode)
+                    self.output_writer(parameters)
 
                     # Saving and evaluating the model
                     self.save_evaluate_model(i_episode)
                     break
         self.writer.close()
         
+    def output_writer(self, parameters):
+        self.cum_reward.append(parameters['cum_reward'])
+        self.cum_discounted_reward.append(parameters['disc_reward'])
+        self.writer.add_scalar('loss', parameters['loss'], parameters['i_episode']) 
+        self.writer.add_scalar('episode_len', parameters['episode_len'], parameters['i_episode'])
+        self.writer.add_scalar('reward', parameters['cum_reward'], parameters['i_episode'])
+        self.writer.add_scalar('disc_reward', parameters['disc_reward'], parameters['i_episode'])
+        self.writer.add_scalar('epsilon', self.eps_threshold, parameters['i_episode'])
+
+    def store_transition(self, state, action, next_state, reward):
+        if 'normal' in self.data:
+            self.memory.push(state, action, next_state, reward)
+        elif 'smart' in self.data:
+            if reward != 0.0:
+                self.memory.push(state, action, next_state, reward)
+            elif random.random() > 0.75:
+                self.memory.push(state, action, next_state, reward)
+
+
 
     def soft_update(self, policy, target):
         target_net_state_dict = target
@@ -383,6 +371,15 @@ class Agent:
             self.evaluate(50, i_episode, self.policy_net)
         if i_episode % 1000 == 0:
             self.evaluate(50, i_episode, self.policy_net)
+
+    def save_model(self, i_episode, name='my_model'):
+        # Saving the model
+        if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+            self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+            torch.save(self.policy_net.state_dict(), os.path.join(self.log_dir, f'{name}.pth'))
+            return True
+        return False
+
 
 
     def evaluate(self, num_episodes, episode_number, model):

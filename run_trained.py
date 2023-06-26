@@ -41,7 +41,7 @@ def run_episode(episode_model, env_test):
 name = "four-room-multiagent-v0"
 num_agents = 1
 hid_dim = 256
-job = '28'
+job = '41/41_ddqn_Agent_05_26__16_24_44__75'
 
 path = f'models/{job}/my_model.pth'
 video_path = f'models/{job}'
