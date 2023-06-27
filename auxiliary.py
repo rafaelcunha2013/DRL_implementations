@@ -7,7 +7,8 @@ def train(env, num_episodes, agent1, agent2):
         state, info = env.reset()
         parameters = dict()
 
-        loss_mean = 0
+        loss_mean1 = 0
+        loss_mean2 = 0
         cum_reward = 0
         cum_discounted_reward = 0
         cum_gamma = agent1.gamma
@@ -41,26 +42,34 @@ def train(env, num_episodes, agent1, agent2):
 
             # Perform one step of the optimization (on the policy network)
             agent1.optimize_model()
-            loss_mean += (agent1.loss.item() - loss_mean) / (t + 1)
+            loss_mean1 += (agent1.loss.item() - loss_mean1) / (t + 1)
             agent1.update_network()
 
             agent2.optimize_model()
-            loss_mean += (agent2.loss.item() - loss_mean) / (t + 1)
+            loss_mean2 += (agent2.loss.item() - loss_mean2) / (t + 1)
             agent2.update_network()
 
             if done:
                 agent1.steps_done += 1
                 agent2.steps_done += 1
-                parameters = {
-                    'loss': loss_mean,
+                parameters1 = {
+                    'loss': loss_mean1,
                     'episode_len': t + 1,
                     'cum_reward': cum_reward,
                     'disc_reward': cum_discounted_reward,
                     'i_episode': i_episode
                     }
                 
-                agent1.output_writer(parameters)
-                agent2.output_writer(parameters)
+                parameters2 = {
+                    'loss': loss_mean2,
+                    'episode_len': t + 1,
+                    'cum_reward': cum_reward,
+                    'disc_reward': cum_discounted_reward,
+                    'i_episode': i_episode
+                    }
+                
+                agent1.output_writer(parameters1)
+                agent2.output_writer(parameters2)
 
                 # Saving and evaluating the model
                 saved = agent1.save_model(i_episode, name='agent1')
