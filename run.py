@@ -128,11 +128,19 @@ for i in range(num_trial):
     # my_dqn.train(num_episodes)
 
 
-    agent1 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)
-    agent2 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)   
-    # agents = [agent1, agent2]
+    if num_agents == 2 and agent_name == "Agent":
+        agent1 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)
+        agent2 = my_agent(env_agent, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data, n_agents=2)   
 
-    train(env, num_episodes, agent1, agent2)
+        train(env, num_episodes, agent1, agent2)
 
+    else:
+        if 'per' in buffer:
+            my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, buffer=buffer)
+        else:
+            my_dqn = my_agent(env, BATCH_SIZE, GAMMA, EPS_START, EPS_END, EPS_DECAY, TAU, LR, hid_dim=hid_dim, capacity=capacity, alg=alg, log_dir=log_dir, nn=nn, update_type=update_type, data=data)
+
+
+        my_dqn.train(num_episodes)
 
 
