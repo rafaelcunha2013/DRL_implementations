@@ -423,9 +423,10 @@ class Agent:
 class AgentOneAtTime(Agent):
     
     def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                 lr, hid_dim=128, capacity=10_000, alg=['dqn'], log_dir='logs/', nn=['linear'], n_agents=2):
+                 lr, hid_dim=128, capacity=10_000, alg=['dqn'], log_dir='logs/', nn=['linear'], n_agents=2,
+                 buffer=['simple'], update_type=['hard'], update_interval=1_000, data=['normal']):
         super().__init__(env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
-                        lr, hid_dim, capacity, alg, log_dir, nn)
+                        lr, hid_dim, capacity, alg, log_dir, nn, n_agents, buffer, update_type, update_interval, data)
 
 
         self.env = env
@@ -609,10 +610,50 @@ class AgentOneAtTime(Agent):
                     break
         self.writer.close()
 
+
+    def evaluate(self, num_episodes, episode_number, model):
+        self.evaluate_flag = True
+        history_cum_reward = []
+        history_cum_disc_reward = []
+        for i_episode in range(num_episodes):
+            state, info = self.env.reset()
+
+            state = torch.tensor(state, dtype=torch.float32, device=self.device).unsqueeze(0)
+            cum_reward = 0
+            cum_discounted_reward = 0
+            cum_gamma = self.gamma
+            for t in count():
+                action = self.select_action(state)
+                observation, reward, terminated, truncated, _ = self.env.step(action.item())
+                cum_reward += reward
+                cum_discounted_reward += cum_gamma * reward
+                cum_gamma *= self.gamma
+                reward = torch.tensor([reward], device=self.device)
+                done = terminated or truncated
+
+                next_state = None if terminated else torch.tensor(observation, dtype=torch.float32, device=self.device).unsqueeze(0)
+
+                # Move to the next state
+                state = next_state
+
+                if done:
+                    history_cum_reward.append(cum_reward)
+                    history_cum_disc_reward.append(cum_discounted_reward)
+                    break
+        self.writer.add_scalar('reward/evaluated', np.mean(history_cum_reward), episode_number)
+        self.writer.add_scalar('disc_reward/evaluated', np.mean(cum_discounted_reward), episode_number)
+        self.evaluate_flag = False
+
     def update_network(self):
         for i in range(self.n_agents):
-        # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
-            self.target_net[i].load_state_dict(self.soft_update(self.policy_net[i].state_dict(), self.target_net[i].state_dict()))
+            if 'soft' in self.update_type:
+                # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
+                self.target_net[i].load_state_dict(self.soft_update(self.policy_net[i].state_dict(), self.target_net[i].state_dict()))
+
+            elif 'hard' in self.update_type:
+                if self.step % self.update_interval == 0:
+                    self.target_net[i].load_state_dict(self.policy_net[i].state_dict())
+
 
     def save_evaluate_model(self, i_episode):
         # Saving and evaluating the model

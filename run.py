@@ -61,7 +61,7 @@ else:
     EPS_DECAY = 1000
     max_step_episode = 500
     buffer = ['simple'] # or ['simple'] or ['per']
-    agent_name = "Agent" # 'Agent' # or "AgentAtTime"
+    agent_name = "AgentAtTime" #"Agent" # 'Agent' # or "AgentAtTime"
     BATCH_SIZE = 4
     job_name = '02'
     nn = ['linear']
