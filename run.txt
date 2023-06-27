@@ -62,6 +62,7 @@ tensorboard --logdir_spec="33:/home4/p285087/data/four_room/logs_Agent_1/33","34
 tensorboard --logdir_spec="39:/home4/p285087/data/four_room/logs_Agent_1/39","40:/home4/p285087/data/four_room/logs_Agent_1/40","41:/home4/p285087/data/four_room/logs_Agent_1/41"
 
 tensorboard --logdir_spec="41:/home4/p285087/data/four_room/logs_Agent_1/41"
+tensorboard --logdir_spec="43:/home4/p285087/data/four_room/logs_Agent_2/43"
 
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/18_ddqn_Agent_05_09__11_57_46__68"
 
@@ -133,4 +134,4 @@ sbatch --job-name=41 --time=20:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-
 
 sbatch --job-name=42 --time=20:00:00 --mem=15G run2.sh ddqn 30_000 1 four-room-multiagent-v0 1 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 42 linear hard smart
 
-sbatch --job-name=43 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 42 linear hard normal
+sbatch --job-name=43 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 43 linear hard normal
