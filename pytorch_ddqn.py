@@ -665,6 +665,122 @@ class AgentOneAtTime(Agent):
         if i_episode % 1000 == 0:
             self.evaluate(50, i_episode, self.policy_net)
 
+class AgentOneAtTimeFull(AgentOneAtTime):
+    
+    def __init__(self, env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
+                 lr, hid_dim=128, capacity=10_000, alg=['dqn'], log_dir='logs/', nn=['linear'], n_agents=2,
+                 buffer=['simple'], update_type=['hard'], update_interval=1_000, data=['normal']):
+        super().__init__(env, batch_size, gamma, eps_start, eps_end, eps_decay, tau, 
+                        lr, hid_dim, capacity, alg, log_dir, nn, n_agents, buffer, update_type, update_interval, data)
+
+
+
+        self.policy_net_v = Network(self.n_observations, 1, hid_dim)
+        self.target_net_v = Network(self.n_observations, 1, hid_dim)
+        self.target_net_v.load_state_dict(self.policy_net_v.state_dict())
+        self.optimizer_v = optim.AdamW(self.policy_net_v.parameters(), lr=lr, amsgrad=True)
+        self.loss_v = torch.zeros(1)
+
+       
+    def optimize_model(self):
+        if len(self.memory) < self.batch_size:
+            return
+        transitions = self.memory.sample(self.batch_size)
+        # Converts batch-array of Transitions to Transitons of batch-arrays
+        batch = Transition(*zip(*transitions))
+
+        # Compute a mask of non-final states and concatenate the batch elements
+        non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
+        non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+
+        state_batch = torch.cat(batch.state)
+        action_batch = torch.cat(batch.action)
+        reward_batch = torch.cat(batch.reward)
+
+        # Individualize the actions and augment the state
+        state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
+
+
+        # --- Core of the DQN algorithm -------
+        state_values = self.policy_net_v(state_batch)
+        state_action1_values = self.policy_net[0](state_batch).gather(1, action1_batch)
+        state_action1_action2_values = self.policy_net[1](state_action1_batch).gather(1, action2_batch)
+
+        next_state_values = torch.zeros(self.batch_size, device=self.device)
+
+
+        if 'dqn' in self.alg:
+            with torch.no_grad():
+                next_state_values[non_final_mask] = self.target_net_v(non_final_next_states).view(-1)
+                expected_state_values = self.target_net[0](state_batch).max(1)[0]
+                expected_state_action1_values = self.target_net[1](state_action1_batch).max(1)[0]
+
+        if 'ddqn' in self.alg:
+            # next_action_values = torch.zeros(self.batch_size, device=self.device)
+            with torch.no_grad():
+                next_action1_values = self.policy_net[0](non_final_next_states).argmax(1).view(-1, 1)
+                next_state_values[non_final_mask] = self.target_net[0](non_final_next_states).gather(1, next_action1_values).view(-1)
+
+                action2_values = self.policy_net[1](state_action1_batch).argmax(1).view(-1, 1)
+                expected_state_action1_values = self.target_net[1](state_action1_batch).gather(1, action2_values).view(-1)
+
+
+
+        expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
+        # --- Core of the DQN algorithm -------
+
+        # Compute Huber loss
+        criterion = nn.SmoothL1Loss()
+        self.loss_v = criterion(state_values, expected_state_values.unsqueeze(1))
+        self.loss[0] = criterion(state_action1_values, expected_state_action1_values.unsqueeze(1))
+        self.loss[1] = criterion(state_action1_action2_values, expected_state_action1_action2_values.unsqueeze(1)) 
+
+        self.optimizer_v.zero_grad()
+        self.loss_v.backward()
+        torch.nn.utils.clip_grad_value_(self.policy_net_v.parameters(), 100)
+        self.optimizer_v.step()
+
+        for i in range(self.n_agents):
+            # Optimize the model
+            self.optimizer[i].zero_grad()
+            self.loss[i].backward()
+
+            # In-place gradient clipping
+            torch.nn.utils.clip_grad_value_(self.policy_net[i].parameters(), 100)
+            self.optimizer[i].step()
+
+
+    def update_network(self):
+        if 'soft' in self.update_type:
+            # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
+            self.target_net_v.load_state_dict(self.soft_update(self.policy_net_v.state_dict(), self.target_net_v.state_dict()))
+
+        elif 'hard' in self.update_type:
+            if self.step % self.update_interval == 0:
+                self.target_net_v.load_state_dict(self.policy_net_v.state_dict())
+
+
+        for i in range(self.n_agents):
+            if 'soft' in self.update_type:
+                # Soft update of the target network's weights ( Why not use torch.nn.utisl.soft_update() in the parameters?)
+                self.target_net[i].load_state_dict(self.soft_update(self.policy_net[i].state_dict(), self.target_net[i].state_dict()))
+
+            elif 'hard' in self.update_type:
+                if self.step % self.update_interval == 0:
+                    self.target_net[i].load_state_dict(self.policy_net[i].state_dict())
+
+
+    def save_evaluate_model(self, i_episode):
+        # Saving and evaluating the model
+        if len(self.cum_discounted_reward) == self.cum_discounted_reward.maxlen and np.mean(self.cum_discounted_reward) > self.max_cum_discounted_reward:
+            self.max_cum_discounted_reward = np.mean(self.cum_discounted_reward)
+            torch.save(self.policy_net_v.state_dict(), os.path.join(self.log_dir, f'my_model_v.pth'))
+            for i in range(self.n_agents):
+                torch.save(self.policy_net[i].state_dict(), os.path.join(self.log_dir, f'my_model_{i}.pth'))
+            self.evaluate(50, i_episode, self.policy_net)
+        if i_episode % 1000 == 0:
+            self.evaluate(50, i_episode, self.policy_net)
+
 
 if __name__ == '__main__':
     """

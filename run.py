@@ -2,7 +2,7 @@
 import gym
 import gym_sf
 
-from pytorch_ddqn import Agent, AgentOneAtTime
+from pytorch_ddqn import Agent, AgentOneAtTime, AgentOneAtTimeFull
 from auxiliary import train
 # from pytorch_ddqn_per import Agent
 
@@ -49,7 +49,7 @@ if system_name == 'Linux':
 
 
 else:
-    alg = ['ddqn']
+    alg = ['dqn']
     num_episodes = 10
     num_trial = 1
     env_name = 'four-room-multiagent-v0'
@@ -61,7 +61,7 @@ else:
     EPS_DECAY = 1000
     max_step_episode = 500
     buffer = ['simple'] # or ['simple'] or ['per']
-    agent_name = "AgentAtTime" #"Agent" # 'Agent' # or "AgentAtTime"
+    agent_name = "AgentAtTimeFull" #"Agent" # 'Agent' # or "AgentAtTime" "AgentAtTimeFull"
     BATCH_SIZE = 4
     job_name = '02'
     nn = ['linear']
@@ -116,7 +116,7 @@ for i in range(num_trial):
     # log_dir = f'/data/p285087/DRL_labs/{name}' if system_name == 'Linux' else name
     log_dir = f'/home4/p285087/data/four_room/{name}' if system_name == 'Linux' else name
 
-    agent_classes = {'Agent': Agent, "AgentAtTime": AgentOneAtTime}
+    agent_classes = {'Agent': Agent, "AgentAtTime": AgentOneAtTime, "AgentAtTimeFull": AgentOneAtTimeFull}
     my_agent = agent_classes[agent_name]
 
     # if 'per' in buffer:
