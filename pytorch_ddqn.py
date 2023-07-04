@@ -782,6 +782,95 @@ class AgentOneAtTimeFull(AgentOneAtTime):
             self.evaluate(50, i_episode, self.policy_net)
 
 
+class AgentOneAtTimeFullSeque(AgentOneAtTimeFull):
+
+    # def optimize_model(self):
+    #     if len(self.memory) < self.batch_size:
+    #         return
+    #     transitions = self.memory.sample(self.batch_size)
+    #     # Converts batch-array of Transitions to Transitons of batch-arrays
+    #     batch = Transition(*zip(*transitions))
+
+    #     # Compute a mask of non-final states and concatenate the batch elements
+    #     non_final_mask = torch.tensor(tuple(map(lambda s: s is not None, batch.next_state)), device=self.device, dtype=torch.bool)
+    #     non_final_next_states = torch.cat([s for s in batch.next_state if s is not None])
+
+    #     state_batch = torch.cat(batch.state)
+    #     action_batch = torch.cat(batch.action)
+    #     reward_batch = torch.cat(batch.reward)
+
+    #     # Individualize the actions and augment the state
+    #     state_action1_batch, action1_batch, action2_batch = self.extend_state(state_batch, action_batch)
+
+
+    #     # --- Core of the DQN algorithm -------
+    #     # ---------------------- PART 1  q(s, a1, a2) -----------------------------------------------
+    #     state_action1_action2_values = self.policy_net[1](state_action1_batch).gather(1, action2_batch)
+    #     with torch.no_grad():
+    #         next_state_values[non_final_mask] = self.target_net_v(non_final_next_states).view(-1)
+    #     expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
+    #     self.loss[1] = nn.SmoothL1Loss(state_action1_action2_values, expected_state_action1_action2_values.unsqueeze(1)) 
+    #     self.optimizer[1].zero_grad()
+    #     self.loss[1].backward()
+    #     torch.nn.utils.clip_grad_value_(self.policy_net[1].parameters(), 100)
+    #     self.optimizer[1].step()
+
+    #     # ---------------------- PART 2  q(s, a1) -----------------------------------------------
+    #     state_action1_values = self.policy_net[0](state_batch).gather(1, action1_batch)
+    #     with torch.no_grad():
+    #         expected_state_action1_values = self.target_net[1](state_action1_batch).max(1)[0]
+
+
+
+
+    #     state_values = self.policy_net_v(state_batch)
+        
+        
+
+    #     next_state_values = torch.zeros(self.batch_size, device=self.device)
+
+
+
+    #     with torch.no_grad():
+    #         next_state_values[non_final_mask] = self.target_net_v(non_final_next_states).view(-1)
+    #         expected_state_values = self.target_net[0](state_batch).max(1)[0]
+    #         expected_state_action1_values = self.target_net[1](state_action1_batch).max(1)[0]
+
+
+    #     expected_state_action1_action2_values = (next_state_values * self.gamma) + reward_batch
+    #     # --- Core of the DQN algorithm -------
+
+    #     # Compute Huber loss
+    #     criterion = nn.SmoothL1Loss()
+    #     self.loss_v = criterion(state_values, expected_state_values.unsqueeze(1))
+    #     self.loss[0] = criterion(state_action1_values, expected_state_action1_values.unsqueeze(1))
+    #     self.loss[1] = criterion(state_action1_action2_values, expected_state_action1_action2_values.unsqueeze(1)) 
+
+    #     self.optimizer_v.zero_grad()
+    #     self.loss_v.backward()
+    #     torch.nn.utils.clip_grad_value_(self.policy_net_v.parameters(), 100)
+    #     self.optimizer_v.step()
+
+
+    #     # Optimize the model
+    #     self.optimizer[i].zero_grad()
+    #     self.loss[i].backward()
+
+    #     # In-place gradient clipping
+    #     torch.nn.utils.clip_grad_value_(self.policy_net[i].parameters(), 100)
+    #     self.optimizer[i].step()
+
+
+    def update_network(self):
+        if self.step % 300 == 0:
+            self.target_net_v.load_state_dict(self.policy_net_v.state_dict())
+
+        if self.step % 600 == 0:
+            self.target_net[0].load_state_dict(self.policy_net[i].state_dict())
+
+        if self.step % 1_000 == 0:
+            self.target_net[1].load_state_dict(self.policy_net[i].state_dict())
+
 if __name__ == '__main__':
     """
     Intructions to run the code via command line

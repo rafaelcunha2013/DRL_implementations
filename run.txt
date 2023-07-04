@@ -42,6 +42,9 @@ find . -type f -name "desktop.ini" -exec rm {} \;
 Tranfering files from Habrok to local computer
 alice@skries:~/workdir$ scp p285087@interactive2.hb.hpc.rug.nl:/mnt/pg-data/p285087/drl_alg/four-room-multiagent-v0_reward.png .
 
+Making the line width when printing tensors in terminal wider
+torch.set_printoptions(linewidth=200)
+
 How to call tensorboard
 tensorboard --logdir="/home4/p285087/data/four_room"
 tensorboard --logdir="/home4/p285087/data/four_room/logs_habrok/four-room-multiagent-v0_ddqn_100000_run_2023_04_25__11_33_53__78"
@@ -63,7 +66,7 @@ tensorboard --logdir_spec="39:/home4/p285087/data/four_room/logs_Agent_1/39","40
 
 tensorboard --logdir_spec="41:/home4/p285087/data/four_room/logs_Agent_1/41"
 tensorboard --logdir_spec="43:/home4/p285087/data/four_room/logs_Agent_2/43"
-tensorboard --logdir_spec="45:/home4/p285087/data/four_room/logs_Agent_2/45"
+tensorboard --logdir_spec="46:/home4/p285087/data/four_room/logs_Agent_2/46"
 
 tensorboard --logdir="/home4/p285087/data/four_room/logs_Agent_1/18_ddqn_Agent_05_09__11_57_46__68"
 
@@ -138,3 +141,5 @@ sbatch --job-name=42 --time=20:00:00 --mem=15G run2.sh ddqn 30_000 1 four-room-m
 sbatch --job-name=43 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple Agent 64 43 linear hard normal
 sbatch --job-name=44 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTime 64 44 linear hard normal
 sbatch --job-name=45 --time=40:00:00 --mem=20G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTime 64 45 linear hard normal
+sbatch --job-name=46 --time=40:00:00 --mem=20G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTimeFull 64 46 linear hard normal
+
