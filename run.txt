@@ -142,4 +142,5 @@ sbatch --job-name=43 --time=40:00:00 --mem=15G run2.sh ddqn 100_000 1 four-room-
 sbatch --job-name=44 --time=40:00:00 --mem=20G run2.sh ddqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTime 64 44 linear hard normal
 sbatch --job-name=45 --time=40:00:00 --mem=20G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTime 64 45 linear hard normal
 sbatch --job-name=46 --time=40:00:00 --mem=20G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTimeFull 64 46 linear hard normal
+sbatch --job-name=47 --time=40:00:00 --mem=20G run2.sh dqn 100_000 1 four-room-multiagent-v0 2 logs_Agent 100_000 256 10_000 5_000 simple AgentAtTimeFullSeque 64 47 linear hard normal
 

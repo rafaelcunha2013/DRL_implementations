@@ -866,10 +866,10 @@ class AgentOneAtTimeFullSeque(AgentOneAtTimeFull):
             self.target_net_v.load_state_dict(self.policy_net_v.state_dict())
 
         if self.step % 600 == 0:
-            self.target_net[0].load_state_dict(self.policy_net[i].state_dict())
+            self.target_net[0].load_state_dict(self.policy_net[0].state_dict())
 
         if self.step % 1_000 == 0:
-            self.target_net[1].load_state_dict(self.policy_net[i].state_dict())
+            self.target_net[1].load_state_dict(self.policy_net[1].state_dict())
 
 if __name__ == '__main__':
     """
